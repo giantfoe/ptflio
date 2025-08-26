@@ -4,6 +4,7 @@ import React from 'react';
 import useSWR from 'swr';
 import { useRSCNavigation } from '@/hooks/useRSCNavigation';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
+import { AbstractProjectImage } from '@/components/ui/AbstractProjectImage';
 import { ExternalLink, Globe } from 'lucide-react';
 
 interface Project {
@@ -72,8 +73,9 @@ export default function Projects() {
                 
                 <article>
                   {/* Project Preview Thumbnail */}
-                  <div 
-                    className="h-40 rounded-md bg-gradient-to-br from-indigo-500/40 via-purple-500/30 to-pink-500/30 mb-4 cursor-pointer relative overflow-hidden group/preview"
+                  <AbstractProjectImage
+                    projectName={project.name}
+                    className="h-40 rounded-md mb-4 cursor-pointer group/preview"
                     onClick={() => navigate(`/projects/${project.name}`)}
                   >
                     {hasDeployment && (
@@ -83,7 +85,7 @@ export default function Projects() {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </AbstractProjectImage>
                   
                   <div onClick={() => navigate(`/projects/${project.name}`)} className="cursor-pointer">
                     <h3 className="text-lg font-medium text-white">{project.name}</h3>

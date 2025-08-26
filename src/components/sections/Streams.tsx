@@ -3,6 +3,8 @@ import { useState, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import LazyMediaGrid from "@/components/ui/LazyMediaGrid";
 import Modal from "@/components/ui/Modal";
+import InstagramEmbedModal from "@/components/ui/InstagramEmbedModal";
+import EnhancedInstagramDisplay from "@/components/instagram/EnhancedInstagramDisplay";
 import { createComponentLogger } from "@/utils/logger";
 import { RefreshCw, AlertCircle, CheckCircle, Clock, Wifi, WifiOff, Database } from "lucide-react";
 
@@ -105,6 +107,14 @@ export default function Streams() {
   const [activeTab, setActiveTab] = useState("youtube");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const [instagramEmbed, setInstagramEmbed] = useState<{
+    isOpen: boolean;
+    postId: string;
+    postUrl: string;
+    title?: string;
+    thumbnailUrl?: string;
+    imageUrl?: string;
+  }>({ isOpen: false, postId: "", postUrl: "" });
   const [serviceStatus, setServiceStatus] = useState<ServiceStatus>({
     youtube: { available: true },
     instagram: { available: true }
@@ -203,6 +213,41 @@ export default function Streams() {
     setSelectedVideoId(videoId);
     setIsModalOpen(true);
   };
+  
+  const handleVideoClick = useCallback((videoUrl: string) => {
+    const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+    if (videoId) {
+      setSelectedVideoId(videoId);
+      setIsModalOpen(true);
+    }
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedVideoId(null);
+  }, []);
+
+  const handleInstagramEmbed = useCallback((postUrl: string, title?: string) => {
+    // Extract post ID from Instagram URL
+    const postIdMatch = postUrl.match(/\/p\/([A-Za-z0-9_-]+)\/?/);
+    if (postIdMatch) {
+      // Find the current item to get thumbnail and image URLs
+      const currentItem = data?.data?.find(item => item.url === postUrl);
+      
+      setInstagramEmbed({
+        isOpen: true,
+        postId: postIdMatch[1],
+        postUrl,
+        title,
+        thumbnailUrl: currentItem?.thumbnailUrl,
+        imageUrl: currentItem?.imageUrl
+      });
+    }
+  }, [data?.data]);
+
+  const closeInstagramEmbed = useCallback(() => {
+    setInstagramEmbed({ isOpen: false, postId: "", postUrl: "", thumbnailUrl: undefined, imageUrl: undefined });
+  }, []);
   
   const handleRefresh = useCallback(() => {
     logger.info('Manual refresh triggered', { activeTab });
@@ -375,14 +420,14 @@ export default function Streams() {
           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4 mb-6">
             <h3 className="text-yellow-400 font-medium mb-2">Services Unavailable</h3>
             <p className="text-neutral-300 text-sm mb-3">
-              No streaming services are currently configured. Please set up your API credentials:
+              No streaming services are currently configured. Please check your configuration:
             </p>
             <ul className="text-neutral-400 text-sm space-y-1">
               {!serviceStatus.youtube.available && (
                 <li>• YouTube: Configure YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID</li>
               )}
               {!serviceStatus.instagram.available && (
-                <li>• Instagram: Configure INSTAGRAM_LONG_LIVED_TOKEN and INSTAGRAM_USER_ID</li>
+                <li>• Instagram: Check Juicer feed configuration</li>
               )}
             </ul>
           </div>
@@ -428,7 +473,7 @@ export default function Streams() {
                   </p>
                   {error.message?.includes('configuration') && (
                     <p className="text-red-300/80 text-xs mt-2">
-                      Check your environment variables and API keys.
+                      {activeTab === 'instagram' ? 'Check your Juicer feed configuration.' : 'Check your environment variables and API keys.'}
                     </p>
                   )}
                 </div>
@@ -454,7 +499,21 @@ export default function Streams() {
         
         {!isLoading && !error && data?.data && data.data.length > 0 && (
           <>
-            <LazyMediaGrid items={data.data} onItemClick={handleItemClick} />
+            {activeTab === 'instagram' ? (
+              <EnhancedInstagramDisplay
+                apiPosts={data.data}
+                onInstagramEmbed={handleInstagramEmbed}
+                showManagementLink={true}
+              />
+            ) : (
+              <LazyMediaGrid 
+                items={data.data} 
+                onVideoClick={handleVideoClick}
+                onInstagramEmbed={handleInstagramEmbed}
+                prominentInstagram={false}
+                featuredPostIds={[]}
+              />
+            )}
             <div className="mt-8 space-y-3">
               {/* Data summary */}
               <div className="text-center">
@@ -491,7 +550,7 @@ export default function Streams() {
             </div>
           </>
         )}
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal isOpen={isModalOpen} onClose={closeModal}>
           {selectedVideoId && (
             <iframe
               width="100%"
@@ -504,6 +563,16 @@ export default function Streams() {
             ></iframe>
           )}
         </Modal>
+        
+        <InstagramEmbedModal
+          isOpen={instagramEmbed.isOpen}
+          onClose={closeInstagramEmbed}
+          postId={instagramEmbed.postId}
+          postUrl={instagramEmbed.postUrl}
+          title={instagramEmbed.title}
+          thumbnailUrl={instagramEmbed.thumbnailUrl}
+          imageUrl={instagramEmbed.imageUrl}
+        />
       </div>
     </section>
   );

@@ -1,118 +1,164 @@
 import { NextResponse } from 'next/server'
-import { mapInstagramResponse, type InstagramResponse } from '../../../utils/mapInstagram'
 import { logger } from '../../../utils/logger'
-import { validateMultipleEnvVars, createConfigurationErrorResponse } from '../../../utils/env-validation'
+import { manualInstagramService } from '../../../utils/manual-instagram-service'
 
 const REVALIDATE_SECONDS = 900 // 15 minutes
 const TAG = 'instagram'
+const JUICER_FEED_NAME = 'ayorinde_john'
 
-function envOrThrow(name: string): string {
-  const v = process.env[name]
-  if (!v) throw new Error(`Missing required env var: ${name}`)
-  return v
+// Interface for Juicer feed items
+interface JuicerFeedItem {
+  id: string;
+  message?: string;
+  full?: string;
+  image?: string;
+  external?: string;
+  source?: {
+    source: string;
+    term: string;
+  };
+  date?: string;
+  edit?: string;
+}
+
+interface JuicerResponse {
+  posts?: JuicerFeedItem[];
+  items?: JuicerFeedItem[];
+}
+
+// Function to fetch from Juicer feed
+async function fetchJuicerFeed(): Promise<JuicerFeedItem[]> {
+  const juicerEndpoints = [
+    `https://www.juicer.io/api/feeds/${JUICER_FEED_NAME}`,
+    `https://www.juicer.io/api/feeds/${JUICER_FEED_NAME}.json`,
+    `https://api.juicer.io/feeds/${JUICER_FEED_NAME}`,
+    `https://api.juicer.io/feeds/${JUICER_FEED_NAME}.json`
+  ];
+
+  for (const endpoint of juicerEndpoints) {
+    try {
+      logger.info(`Attempting to fetch from Juicer endpoint: ${endpoint}`);
+      
+      const response = await fetch(endpoint, {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Portfolio-App/1.0'
+        },
+        next: { revalidate: REVALIDATE_SECONDS }
+      });
+
+      if (response.ok) {
+        const data: JuicerResponse = await response.json();
+        const posts = data.posts || data.items || [];
+        
+        if (posts.length > 0) {
+          logger.info(`Successfully fetched ${posts.length} posts from ${endpoint}`);
+          return posts;
+        }
+      }
+    } catch (error) {
+      logger.warn(`Failed to fetch from ${endpoint}:`, {
+        error: error instanceof Error ? error.message : String(error),
+        endpoint
+      });
+      continue;
+    }
+  }
+
+  // If all endpoints fail, return empty array
+  logger.warn('All Juicer endpoints failed, returning empty array');
+  return [];
+}
+
+// Function to transform Juicer items to expected format
+function transformJuicerItems(juicerItems: JuicerFeedItem[]) {
+  return juicerItems
+    .filter(item => item.source?.source === 'Instagram' || !item.source) // Filter for Instagram posts or unknown source
+    .slice(0, 10) // Limit to 10 posts
+    .map(item => ({
+      id: item.id || `juicer_${Date.now()}_${Math.random()}`,
+      caption: item.message || item.full || '',
+      media_type: item.image ? 'IMAGE' : 'CAROUSEL_ALBUM',
+      media_url: item.image || '',
+      permalink: item.external || item.edit || `https://www.juicer.io/hub/${JUICER_FEED_NAME}`,
+      timestamp: item.date || new Date().toISOString()
+    }));
 }
 
 export async function GET() {
   try {
-    // Validate environment variables first
-    const envVars = {
-      'INSTAGRAM_LONG_LIVED_TOKEN': process.env.INSTAGRAM_LONG_LIVED_TOKEN,
-      'INSTAGRAM_USER_ID': process.env.INSTAGRAM_USER_ID,
-    }
+    logger.info('Fetching Instagram content via Juicer integration', {
+      service: 'instagram',
+      source: 'juicer',
+      feedName: JUICER_FEED_NAME
+    })
 
-    const validation = validateMultipleEnvVars(envVars)
+    // Try to fetch from Juicer feed API
+    const juicerItems = await fetchJuicerFeed();
+    let items = [];
+
+    if (juicerItems.length > 0) {
+      // Transform Juicer items to expected format
+      items = transformJuicerItems(juicerItems);
+      logger.info(`Transformed ${items.length} Juicer items to Instagram format`);
+    } else {
+      // Fallback to manual posts if Juicer fetch fails
+      logger.info('Falling back to manual posts as Juicer fetch returned no items');
+      const manualPosts = manualInstagramService.getActivePosts();
+      items = manualPosts.map(post => ({
+        id: post.id,
+        caption: post.description || post.title || '',
+        media_type: 'IMAGE',
+        media_url: post.url,
+        permalink: post.url,
+        timestamp: post.addedAt
+      }));
+    }
     
-    if (!validation.isAllValid) {
-      logger.error('Instagram API configuration invalid', {
-        service: 'instagram',
-        errors: validation.errors,
-        suggestions: validation.suggestions
-      })
-      
-      const errorResponse = createConfigurationErrorResponse('Instagram', validation)
-      return NextResponse.json(errorResponse, { status: 503 })
-    }
+    // Get widget configuration
+    const widgetConfig = manualInstagramService.getWidgetConfig()
 
-    const ACCESS_TOKEN = envOrThrow('INSTAGRAM_LONG_LIVED_TOKEN')
-    const USER_ID = envOrThrow('INSTAGRAM_USER_ID')
-
-    logger.info('Fetching Instagram media', {
+    logger.info('Instagram content fetched successfully', {
       service: 'instagram',
-      userId: USER_ID.substring(0, 8) + '...', // Log partial ID for privacy
-      endpoint: 'media'
-    })
-
-    const params = new URLSearchParams({
-      fields:
-        'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp',
-      access_token: ACCESS_TOKEN,
-      limit: '10',
-    })
-
-    const url = `https://graph.instagram.com/${USER_ID}/media?${params.toString()}`
-
-    const res = await fetch(url, {
-      method: 'GET',
-      next: { revalidate: REVALIDATE_SECONDS, tags: [TAG] },
-    })
-
-    if (!res.ok) {
-      const text = await res.text()
-      logger.error('Instagram API request failed', {
-        service: 'instagram',
-        status: res.status,
-        statusText: res.statusText,
-        url: url.replace(ACCESS_TOKEN, '[REDACTED]'), // Remove token from logs
-        response: text
-      })
-      
-      return NextResponse.json(
-        { 
-          error: 'Instagram API error', 
-          message: 'Failed to fetch Instagram media',
-          status: res.status, 
-          details: res.status === 400 ? 'Invalid access token or user ID' : text,
-          suggestions: res.status === 400 ? [
-            'Check if your Instagram access token is valid and not expired',
-            'Verify your Instagram User ID is correct',
-            'Ensure your access token has the required permissions'
-          ] : []
-        },
-        { status: 502 }
-      )
-    }
-
-    const data: InstagramResponse = await res.json()
-    const items = mapInstagramResponse(data)
-
-    logger.info('Instagram media fetched successfully', {
-      service: 'instagram',
-      count: items.length,
-      cacheTag: TAG
+      source: 'juicer',
+      itemsCount: items.length,
+      widgetEnabled: widgetConfig?.isEnabled || false,
+      cacheTag: TAG,
+      feedName: JUICER_FEED_NAME
     })
 
     return NextResponse.json(
       {
         source: 'instagram',
+        integration: 'juicer',
         count: items.length,
         items,
+        widget: {
+          enabled: widgetConfig?.isEnabled || false,
+          provider: widgetConfig?.provider || 'juicer',
+          feedUrl: `https://www.juicer.io/hub/${JUICER_FEED_NAME}`
+        }
       },
-      { headers: { 'Cache-Tag': TAG } }
+      { 
+        headers: { 'Cache-Tag': TAG }
+      }
     )
   } catch (err: unknown) {
     const error = err as Error;
     
-    logger.error('Instagram API unexpected error', {
+    logger.error('Instagram Juicer integration error', {
       service: 'instagram',
+      source: 'juicer',
       error: error.message,
       stack: error.stack
     })
     
     return NextResponse.json(
       { 
-        error: 'Instagram API Error',
+        error: 'Instagram Integration Error',
         message: error?.message || 'Unexpected error occurred while fetching Instagram data',
         service: 'instagram',
+        source: 'juicer',
         timestamp: new Date().toISOString()
       },
       { status: 500 }

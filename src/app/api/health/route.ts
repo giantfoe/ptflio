@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createYouTubeService } from '@/utils/youtube-service';
+import { createInstagramService } from '@/utils/instagram-service';
 import { cacheManager } from '@/utils/cache-manager';
 import { createApiLogger } from '@/utils/logger';
 
@@ -51,6 +52,28 @@ export async function GET(request: NextRequest) {
         service: 'youtube',
         status: 'unhealthy',
         responseTime: Date.now() - youtubeStartTime,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+    
+    // Check Instagram service health
+    const instagramStartTime = Date.now();
+    try {
+      const instagramService = createInstagramService();
+      const instagramHealth = await instagramService.getHealthStatus();
+      
+      services.push({
+        service: 'instagram',
+        status: instagramHealth.status,
+        responseTime: Date.now() - instagramStartTime,
+        details: instagramHealth.details,
+        error: instagramHealth.status === 'healthy' ? undefined : 'Service configuration or connectivity issues'
+      });
+    } catch (error) {
+      services.push({
+        service: 'instagram',
+        status: 'unhealthy',
+        responseTime: Date.now() - instagramStartTime,
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
