@@ -14,7 +14,7 @@ interface GitHubEvent {
   };
 }
 
-export function mapGithubResponse(data: GitHubEvent[]): ApiResponse['items'] {
+export function mapGithubResponse(data: GitHubEvent[]): ApiResponse['data'] {
   return (data || []).map((e: GitHubEvent) => {
     const repoName = e.repo?.name;
     const webUrl = repoName ? `https://github.com/${repoName}` : undefined;

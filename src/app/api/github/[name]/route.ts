@@ -1,125 +1,200 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createApiLogger, PerformanceTimer } from '@/utils/logger';
+
+const GITHUB_USERNAME = process.env.GITHUB_USERNAME;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+if (!GITHUB_USERNAME) {
+  throw new Error('GITHUB_USERNAME environment variable is required');
+}
 
 interface GitHubCommit {
   sha: string;
   commit: {
     message: string;
-    committer: {
+    author: {
+      name: string;
       date: string;
     };
   };
+  html_url: string;
 }
 
-export async function GET(request: NextRequest, { params }: { params: Promise<{ name: string }> }) {
-  const resolvedParams = await params;
-  const logger = createApiLogger(`/api/github/${resolvedParams.name}`, request);
-  const timer = new PerformanceTimer(`fetch-repo-${resolvedParams.name}`, logger);
+interface GitHubRepo {
+  name: string;
+  description: string | null;
+  homepage: string | null;
+  html_url: string;
+  stargazers_count: number;
+  forks_count: number;
+  language: string | null;
+  updated_at: string;
+  created_at: string;
+  topics: string[];
+  license: {
+    name: string;
+    spdx_id: string;
+  } | null;
+  open_issues_count: number;
+  watchers_count: number;
+  size: number;
+  default_branch: string;
+  owner: {
+    login: string;
+  };
+}
+
+interface GitHubLanguages {
+  [key: string]: number;
+}
+
+interface GitHubRelease {
+  tag_name: string;
+  name: string;
+  published_at: string;
+  html_url: string;
+  body: string;
+}
+
+interface GitHubReadme {
+  content: string;
+  encoding: string;
+}
+
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ name: string }> }
+) {
+  const startTime = Date.now();
+  const { name } = await params;
+  console.log(`[GitHub API] Fetching comprehensive repository data for: ${name}`);
   
-  const username = process.env.GITHUB_USERNAME;
-  const token = process.env.GITHUB_TOKEN;
-
-  logger.info('Starting repository details fetch', { 
-    repository: resolvedParams.name,
-    username 
-  });
-
-  if (!username || !token) {
-    logger.error('GitHub credentials not configured', { 
-      hasUsername: !!username,
-      hasToken: !!token 
-    });
-    return NextResponse.json({ error: 'GitHub credentials not configured' }, { status: 500 });
-  }
-
   try {
-    // Fetch repo details
-    logger.debug('Fetching repository details', { 
-      url: `https://api.github.com/repos/${username}/${resolvedParams.name}` 
-    });
-    
-    const repoRes = await fetch(`https://api.github.com/repos/${username}/${resolvedParams.name}`, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!repoRes.ok) {
-      logger.error('Failed to fetch repository details', {
-        statusCode: repoRes.status,
-        statusText: repoRes.statusText,
-        repository: resolvedParams.name
-      });
-      throw new Error('Failed to fetch repo details');
-    }
-
-    const repoData = await repoRes.json();
-    logger.debug('Repository details fetched successfully', {
-      hasDescription: !!repoData.description,
-      hasHomepage: !!repoData.homepage
-    });
-
-    // Fetch recent commits (last 10)
-    logger.debug('Fetching repository commits', { 
-      url: `https://api.github.com/repos/${username}/${resolvedParams.name}/commits?per_page=10` 
-    });
-    
-    const commitsRes = await fetch(`https://api.github.com/repos/${username}/${resolvedParams.name}/commits?per_page=10`, {
-      headers: {
-        'Accept': 'application/vnd.github+json',
-        'Authorization': `Bearer ${token}`,
-      },
-    });
-
-    if (!commitsRes.ok) {
-      logger.error('Failed to fetch repository commits', {
-        statusCode: commitsRes.status,
-        statusText: commitsRes.statusText,
-        repository: resolvedParams.name
-      });
-      throw new Error('Failed to fetch commits');
-    }
-
-    const commitsData: GitHubCommit[] = await commitsRes.json();
-    const commits = commitsData.map((commit: GitHubCommit) => ({
-      sha: commit.sha,
-      message: commit.commit.message,
-      date: commit.commit.committer.date,
-    }));
-    
-    logger.debug('Repository commits fetched successfully', {
-      commitCount: commits.length
-    });
-
-    const response = {
-      description: repoData.description,
-      homepage: repoData.homepage,
-      commits,
+    const headers: Record<string, string> = {
+      'Accept': 'application/vnd.github.v3+json',
+      'User-Agent': 'Portfolio-App'
     };
     
-    timer.end({ 
-      repository: resolvedParams.name,
-      commitCount: commits.length,
-      hasDescription: !!repoData.description,
-      hasHomepage: !!repoData.homepage
+    if (GITHUB_TOKEN) {
+      headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+    }
+
+    // Fetch repository details
+    const repoResponse = await fetch(
+      `https://api.github.com/repos/${GITHUB_USERNAME}/${name}`,
+      { headers }
+    );
+
+    if (!repoResponse.ok) {
+      console.error(`[GitHub API] Repository fetch failed: ${repoResponse.status}`);
+      return NextResponse.json(
+        { error: 'Repository not found' },
+        { status: repoResponse.status }
+      );
+    }
+
+    const repo: GitHubRepo = await repoResponse.json();
+
+    // Fetch multiple data sources in parallel
+    const [commitsResponse, languagesResponse, releasesResponse, readmeResponse] = await Promise.allSettled([
+      fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}/commits?per_page=10`, { headers }),
+      fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}/languages`, { headers }),
+      fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}/releases?per_page=5`, { headers }),
+      fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${name}/readme`, { headers })
+    ]);
+
+    // Process commits
+    let commits: GitHubCommit[] = [];
+    if (commitsResponse.status === 'fulfilled' && commitsResponse.value.ok) {
+      commits = await commitsResponse.value.json();
+    } else {
+      console.warn(`[GitHub API] Commits fetch failed`);
+    }
+
+    // Process languages
+    let languages: GitHubLanguages = {};
+    if (languagesResponse.status === 'fulfilled' && languagesResponse.value.ok) {
+      languages = await languagesResponse.value.json();
+    } else {
+      console.warn(`[GitHub API] Languages fetch failed`);
+    }
+
+    // Process releases
+    let releases: GitHubRelease[] = [];
+    if (releasesResponse.status === 'fulfilled' && releasesResponse.value.ok) {
+      releases = await releasesResponse.value.json();
+    } else {
+      console.warn(`[GitHub API] Releases fetch failed`);
+    }
+
+    // Process README
+    let readmeContent = '';
+    if (readmeResponse.status === 'fulfilled' && readmeResponse.value.ok) {
+      const readme: GitHubReadme = await readmeResponse.value.json();
+      if (readme.encoding === 'base64') {
+        readmeContent = Buffer.from(readme.content, 'base64').toString('utf-8');
+      }
+    } else {
+      console.warn(`[GitHub API] README fetch failed`);
+    }
+
+    // Calculate language percentages
+    const totalBytes = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
+    const languagePercentages = Object.entries(languages).map(([language, bytes]) => ({
+      name: language,
+      percentage: totalBytes > 0 ? Math.round((bytes / totalBytes) * 100) : 0,
+      bytes
+    })).sort((a, b) => b.percentage - a.percentage);
+
+    const endTime = Date.now();
+    console.log(`[GitHub API] Comprehensive request completed in ${endTime - startTime}ms`);
+
+    return NextResponse.json({
+      repository: {
+        name: repo.name,
+        description: repo.description,
+        homepage: repo.homepage,
+        html_url: repo.html_url,
+        stargazers_count: repo.stargazers_count,
+        forks_count: repo.forks_count,
+        language: repo.language,
+        updated_at: repo.updated_at,
+        created_at: repo.created_at,
+        topics: repo.topics || [],
+        license: repo.license,
+        open_issues_count: repo.open_issues_count,
+        watchers_count: repo.watchers_count,
+        size: repo.size,
+        default_branch: repo.default_branch,
+        owner: repo.owner
+      },
+      commits: commits.map(commit => ({
+        sha: commit.sha,
+        message: commit.commit.message,
+        author: commit.commit.author.name,
+        date: commit.commit.author.date,
+        url: commit.html_url
+      })),
+      languages: languagePercentages,
+      releases: releases.map(release => ({
+        tag_name: release.tag_name,
+        name: release.name,
+        published_at: release.published_at,
+        url: release.html_url,
+        body: release.body
+      })),
+      readme: readmeContent,
+      stats: {
+        totalLanguages: languagePercentages.length,
+        totalReleases: releases.length,
+        totalCommits: commits.length,
+        repositorySize: repo.size
+      }
     });
-    
-    logger.info('Repository details fetch completed successfully', {
-      repository: resolvedParams.name,
-      commitCount: commits.length
-    });
-    
-    return NextResponse.json(response);
   } catch (error) {
-    const err = error as Error;
-    timer.endWithError(err, { repository: resolvedParams.name });
-    
-    logger.error('Failed to fetch project details', {
-      repository: resolvedParams.name,
-      username
-    }, err);
-    
-    return NextResponse.json({ error: 'Failed to fetch project details' }, { status: 500 });
+    console.error('[GitHub API] Error:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch repository data' },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import UXProviders from "@/components/providers/UXProviders";
+import RSCNavigationWrapper from "@/components/RSCNavigationWrapper";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"] });
@@ -15,9 +16,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <body className={`${geistSans.className} ${geistMono.className} bg-neutral-950 text-neutral-100`}>
-        <UXProviders>
-          {children}
-        </UXProviders>
+        <RSCNavigationWrapper>
+          <UXProviders>
+            {children}
+          </UXProviders>
+        </RSCNavigationWrapper>
       </body>
     </html>
   );

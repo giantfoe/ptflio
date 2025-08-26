@@ -44,11 +44,11 @@ export async function GET(request: NextRequest) {
           cacheKey,
           source: cacheResult.source,
           requestDuration,
-          itemCount: cacheResult.data?.length || 0
+          itemCount: Array.isArray((cacheResult.data as { data?: unknown[] })?.data) ? (cacheResult.data as { data: unknown[] }).data.length : 0
         });
         
         return NextResponse.json({
-          ...cacheResult.data,
+          ...(typeof cacheResult.data === 'object' && cacheResult.data !== null ? cacheResult.data : {}),
           _metadata: {
             cached: true,
             source: cacheResult.source,
@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
             service: 'YouTube',
             errorType: serviceResult.error?.type,
             requestDuration,
-            ...serviceResult.error?.details
+            ...(typeof serviceResult.error?.details === 'object' && serviceResult.error?.details !== null ? serviceResult.error.details : {})
           },
           timestamp: new Date().toISOString()
         },

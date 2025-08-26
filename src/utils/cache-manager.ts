@@ -240,7 +240,7 @@ export class CacheManager {
       const result = await this.redisClient.get(key);
       if (result) {
         const entry: CacheEntry = JSON.parse(result);
-        return this.decompressData(entry.data, entry.compressed || false);
+        return this.decompressData(entry.data as string, entry.compressed || false);
       }
       return null;
     } catch (error) {
@@ -318,7 +318,7 @@ export class CacheManager {
       return null;
     }
 
-    return this.decompressData(entry.data, entry.compressed || false);
+    return this.decompressData(entry.data as string, entry.compressed || false);
   }
 
   /**
@@ -369,7 +369,7 @@ export class CacheManager {
         cacheLogger.debug('Cache hit from Redis', { key });
         return {
           success: true,
-          data: redisData,
+          data: redisData as T,
           fromCache: true,
           source: 'redis'
         };
@@ -382,7 +382,7 @@ export class CacheManager {
         cacheLogger.debug('Cache hit from memory', { key });
         return {
           success: true,
-          data: memoryData,
+          data: memoryData as T,
           fromCache: true,
           source: 'memory'
         };

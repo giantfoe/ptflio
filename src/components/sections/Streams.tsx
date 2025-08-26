@@ -236,7 +236,7 @@ export default function Streams() {
       case 502:
         return `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} service is temporarily unavailable.`;
       default:
-        return info?.message || error.message || `Unable to load ${activeTab} content`;
+        return info?.message || (error as { message?: string }).message || `Unable to load ${activeTab} content`;
     }
   }, [activeTab]);
   

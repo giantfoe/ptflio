@@ -38,12 +38,36 @@ graph TD
 
 ## 2. Technology Description
 
-- **Frontend**: React@18 + Next.js@14 + TypeScript + Tailwind CSS@3 + SWR for data fetching
-- **Backend**: Next.js API Routes + Node.js runtime
-- **Caching**: Redis for content caching and session management
-- **External APIs**: YouTube Data API v3 for content retrieval
-- **Monitoring**: Custom health check system with real-time status updates
-- **Testing**: Vitest + React Testing Library + Playwright for E2E
+### Core Framework
+- **Frontend**: Next.js@15.5.0 (App Router) + React@19.1.0 + TypeScript@5.x
+- **Backend**: Next.js API Routes + Redis@4.6.0
+- **Build Tool**: Turbopack (Next.js integrated)
+
+### Styling & UI
+- **CSS Framework**: Tailwind CSS@4.x + PostCSS
+- **Typography**: @tailwindcss/typography@0.5.16
+- **Icons**: Lucide React@0.460.0
+- **Fonts**: Custom Geist (sans & mono)
+
+### State Management & Data
+- **Data Fetching**: SWR@2.3.6
+- **Validation**: Zod@4.1.1
+- **Caching**: Redis@4.6.0
+
+### Animation & Interactions
+- **Smooth Scrolling**: Lenis@1.3.9
+- **Parallax Effects**: React Scroll Parallax@3.4.5
+
+### Testing & Quality
+- **Test Runner**: Vitest@3.2.4
+- **Testing Library**: @testing-library/react@16.3.0 + jest-dom@6.8.0
+- **DOM Simulation**: jsdom@26.1.0
+- **Linting**: ESLint@9.x + Next.js config
+
+### External APIs
+- **YouTube API**: Video streaming and channel data
+- **GitHub API**: Repository information
+- **Instagram API**: Social media integration
 
 ## 3. Route Definitions
 

@@ -408,7 +408,7 @@ export class YouTubeService {
       });
 
       // Determine error type
-      let errorType: YouTubeServiceResult['error']['type'] = 'UNKNOWN';
+      let errorType: NonNullable<YouTubeServiceResult['error']>['type'] = 'UNKNOWN';
       if (errorMessage.includes('forbidden') || errorMessage.includes('API key')) {
         errorType = 'API';
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {

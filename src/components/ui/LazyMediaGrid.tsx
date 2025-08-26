@@ -18,13 +18,15 @@ interface MediaItem {
 interface LazyMediaGridProps {
   items: MediaItem[];
   className?: string;
+  onItemClick?: (id: string) => void;
 }
 
 interface LazyMediaItemProps {
   item: MediaItem;
+  onItemClick?: (id: string) => void;
 }
 
-function LazyMediaItem({ item }: LazyMediaItemProps) {
+function LazyMediaItem({ item, onItemClick }: LazyMediaItemProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [hasBeenVisible, setHasBeenVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -62,7 +64,7 @@ function LazyMediaItem({ item }: LazyMediaItemProps) {
   return (
     <div ref={ref} className="w-full">
       {isVisible || hasBeenVisible ? (
-        <MediaCard {...item} />
+        <MediaCard {...item} onClick={onItemClick ? () => onItemClick(item.id) : undefined} />
       ) : (
         // Placeholder with same height to prevent layout shift
         <div className="bg-white/5 rounded-lg border border-white/10 overflow-hidden">
@@ -83,11 +85,11 @@ function LazyMediaItem({ item }: LazyMediaItemProps) {
   );
 }
 
-export default function LazyMediaGrid({ items, className = "" }: LazyMediaGridProps) {
+export default function LazyMediaGrid({ items, className = "", onItemClick }: LazyMediaGridProps) {
   return (
     <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${className}`}>
       {items.map((item) => (
-        <LazyMediaItem key={item.id} item={item} />
+        <LazyMediaItem key={item.id} item={item} onItemClick={onItemClick} />
       ))}
     </div>
   );

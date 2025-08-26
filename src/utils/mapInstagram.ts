@@ -14,7 +14,7 @@ export interface InstagramResponse {
   data: InstagramMedia[];
 }
 
-export function mapInstagramResponse(data: InstagramResponse): ApiResponse['items'] {
+export function mapInstagramResponse(data: InstagramResponse): ApiResponse['data'] {
   return (data.data || []).map((m: InstagramMedia) => {
     const isVideo = m.media_type === 'VIDEO';
     return {

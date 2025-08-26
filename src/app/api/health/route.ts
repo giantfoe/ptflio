@@ -41,15 +41,10 @@ export async function GET(request: NextRequest) {
       
       services.push({
         service: 'youtube',
-        status: youtubeHealth.isHealthy ? 'healthy' : 'unhealthy',
+        status: youtubeHealth.status,
         responseTime: Date.now() - youtubeStartTime,
-        details: {
-          configurationValid: youtubeHealth.configurationValid,
-          rateLimitStatus: youtubeHealth.rateLimitStatus,
-          lastSuccessfulRequest: youtubeHealth.lastSuccessfulRequest,
-          consecutiveFailures: youtubeHealth.consecutiveFailures
-        },
-        error: youtubeHealth.isHealthy ? undefined : 'Service configuration or connectivity issues'
+        details: youtubeHealth.details,
+        error: youtubeHealth.status === 'healthy' ? undefined : 'Service configuration or connectivity issues'
       });
     } catch (error) {
       services.push({
@@ -67,14 +62,10 @@ export async function GET(request: NextRequest) {
       
       services.push({
         service: 'cache',
-        status: cacheHealth.isHealthy ? 'healthy' : 'degraded',
+        status: cacheHealth.status,
         responseTime: Date.now() - cacheStartTime,
-        details: {
-          redisConnected: cacheHealth.redisConnected,
-          memoryFallback: cacheHealth.memoryFallback,
-          stats: cacheHealth.stats
-        },
-        error: cacheHealth.isHealthy ? undefined : 'Cache service issues detected'
+        details: cacheHealth.details,
+        error: cacheHealth.status === 'healthy' ? undefined : 'Cache service issues detected'
       });
     } catch (error) {
       services.push({

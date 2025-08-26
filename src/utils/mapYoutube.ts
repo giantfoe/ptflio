@@ -26,9 +26,15 @@ interface YouTubeItem {
 
 export interface YouTubeResponse {
   items: YouTubeItem[];
+  pageInfo?: {
+    totalResults?: number;
+    resultsPerPage?: number;
+  };
+  nextPageToken?: string;
+  prevPageToken?: string;
 }
 
-export function mapYoutubeResponse(data: YouTubeResponse): ApiResponse['items'] {
+export function mapYoutubeResponse(data: YouTubeResponse): ApiResponse['data'] {
   return (data.items || []).map((item: YouTubeItem) => {
     const id = typeof item.id === 'object' ? item.id?.videoId : item.id;
     const snippet = item.snippet || {};
