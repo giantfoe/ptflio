@@ -1,0 +1,77 @@
+{
+  "BNTY": {
+    "description": "A minimal React template using TypeScript and Vite, with HMR and ESLint rules.",
+    "functionality": "Provides basic setup for React development with options to expand ESLint configuration and add React-specific plugins.",
+    "live_links": []
+  },
+  "Future-of-work": {
+    "description": "A Next.js project focused on the 'Future of Work' theme.",
+    "functionality": "Includes Airtable integration for data management, Cloudinary for media, Privy for authentication, and webhook support.",
+    "live_links": []
+  },
+  "Medikated": {
+    "description": "An Expo-based mobile app template.",
+    "functionality": "Basic starter for Expo projects with development build options and learning resources.",
+    "live_links": ["https://docs.expo.dev"]
+  },
+  "MonAcre": {
+    "description": "Blockchain-based investment platform on Solana for fractional asset ownership.",
+    "functionality": "Features user authentication with Privy, Solana wallet integration, investment pools, and real-time updates using Supabase.",
+    "live_links": ["https://vercel.com/ayorinde-johns-projects-34e66095/v0-front-end-project"]
+  },
+  "Super_Med": {
+    "description": "A Svelte project template powered by 'sv'.",
+    "functionality": "Basic setup for Svelte development with options for adapters and production builds.",
+    "live_links": ["https://svelte.dev/docs/kit/adapters"]
+  },
+  "c4h-healthcare-emr--5-": {
+    "description": "Electronic Medical Records system for maternal and child healthcare in Sierra Leone.",
+    "functionality": "Patient management, appointment scheduling, risk assessment, dashboard analytics, and report exports, with demo mode using local data.",
+    "live_links": ["https://supabase.com"]
+  },
+  "edutrack_sierra_leone_mvp": {
+    "description": "MVP for EduTrack Sierra Leone built with Chef and Convex backend.",
+    "functionality": "Uses Convex for backend, with authentication and HTTP API routes.",
+    "live_links": ["https://docs.convex.dev/chef"]
+  },
+  "giantfoe": {
+    "description": "Personal GitHub profile for Ayorinde John.",
+    "functionality": "Bio information including interests, current learning, collaboration preferences, and contact details.",
+    "live_links": []
+  },
+  "ip-copyright-on-chain": {
+    "description": "A Next.js project template.",
+    "functionality": "Basic Next.js setup with font optimization and deployment options.",
+    "live_links": ["https://nextjs.org/docs"]
+  },
+  "ip_reg": {
+    "description": "A Next.js project template.",
+    "functionality": "Standard Next.js starter with development server and learning resources.",
+    "live_links": ["https://nextjs.org/docs"]
+  },
+  "ipkb": {
+    "description": "Intellectual Property Knowledge Base for IP professionals.",
+    "functionality": "Organizes IP laws and regulations with search and reference tools, built with Docusaurus.",
+    "live_links": ["https://github.com/n1cogrv/ipkb"]
+  },
+  "ipr-platform-oarg": {
+    "description": "Intellectual Property Registration Platform for Sierra Leone.",
+    "functionality": "IP application management, role-based access, real-time updates, NFT minting, using Supabase and Solana.",
+    "live_links": []
+  },
+  "medicated-mobile": {
+    "description": "React Native mobile app for Medicated using Expo and Supabase.",
+    "functionality": "Authentication, real-time data sync, secure storage, cross-platform support.",
+    "live_links": []
+  },
+  "pregnacare-medikated": {
+    "description": "An Expo app template for Pregnacare Medikated.",
+    "functionality": "Basic Expo project starter with development options and resources.",
+    "live_links": ["https://docs.expo.dev"]
+  },
+  "solancer": {
+    "description": "A Next.js project template for Solancer.",
+    "functionality": "Standard setup with font optimization and Vercel deployment.",
+    "live_links": ["https://nextjs.org/docs"]
+  }
+}
