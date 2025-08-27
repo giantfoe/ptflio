@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.7] - 2025-01-27
+
+### Fixed
+- Instagram content display issue - posts now properly load from Juicer feed
+- Corrected Juicer API endpoint parsing to handle `posts.items` structure
+- Enhanced error logging for better debugging of API integration issues
+
+### Technical
+- Updated Instagram API route to correctly parse Juicer response structure
+- Fixed data transformation logic to handle nested `posts.items` array
+- Improved API error handling and response structure validation
+
 ## [0.2.6] - 2025-08-26
 
 ### Added
