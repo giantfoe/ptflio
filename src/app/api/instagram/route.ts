@@ -19,6 +19,12 @@ interface JuicerFeedItem {
   };
   date?: string;
   edit?: string;
+  media?: Array<{
+    url?: string;
+    image?: string;
+  }>;
+  unformatted_message?: string;
+  external_created_at?: string;
 }
 
 interface JuicerResponse {
@@ -66,7 +72,7 @@ async function fetchJuicerFeed(): Promise<JuicerFeedItem[]> {
       });
       
       // Handle different response structures
-        let posts: any[] = [];
+        let posts: JuicerFeedItem[] = [];
         if (data.posts?.items) {
           posts = data.posts.items;
         } else if (data.posts?.data) {
@@ -107,7 +113,7 @@ async function fetchJuicerFeed(): Promise<JuicerFeedItem[]> {
 }
 
 // Function to transform Juicer items to expected format
-function transformJuicerItems(juicerItems: any[]) {
+function transformJuicerItems(juicerItems: JuicerFeedItem[]) {
   return juicerItems
     .filter(item => item.source?.source === 'Instagram' || !item.source) // Filter for Instagram posts or unknown source
     .slice(0, 10) // Limit to 10 posts
@@ -182,6 +188,14 @@ export async function GET() {
 
     return NextResponse.json(
       {
+        data: items, // Changed from 'items' to 'data' to match Streams component expectation
+        metadata: {
+          cached: false,
+          source: 'juicer',
+          requestDuration: 0,
+          totalResults: items.length
+        },
+        // Keep original structure for backward compatibility
         source: 'instagram',
         integration: 'juicer',
         count: items.length,

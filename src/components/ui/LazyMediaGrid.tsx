@@ -21,7 +21,7 @@ interface LazyMediaGridProps {
   className?: string;
   onItemClick?: (item: MediaItem) => void;
   onVideoClick?: (videoUrl: string) => void;
-  onInstagramEmbed?: (postUrl: string, title?: string) => void;
+  onInstagramEmbed?: (postId: string, postUrl: string, title?: string) => void;
   prominentInstagram?: boolean;
   featuredPostIds?: string[];
 }
@@ -30,7 +30,7 @@ interface LazyMediaItemProps {
   item: MediaItem;
   onItemClick?: (item: MediaItem) => void;
   onVideoClick?: (videoUrl: string) => void;
-  onInstagramEmbed?: (postUrl: string, title?: string) => void;
+  onInstagramEmbed?: (postId: string, postUrl: string, title?: string) => void;
   prominentInstagram: boolean;
   featuredPostIds: string[];
 }

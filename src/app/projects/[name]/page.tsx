@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import useSWR from 'swr';
+import { useState, useEffect, use } from 'react';
 import { ProjectHeader } from '@/components/ui/ProjectHeader';
 import { AIDescriptionGenerator } from '@/utils/aiDescriptionGenerator';
 
@@ -57,7 +56,6 @@ interface GitHubApiResponse {
   };
 }
 
-import { useParams } from 'next/navigation';
 import { LivePreview } from '@/components/ui/LivePreview';
 import { StatCard } from '@/components/ui/StatCard';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
@@ -65,38 +63,66 @@ import { AIGeneratedDescription } from '@/utils/aiDescriptionGenerator';
 import { GitCommit, Calendar, Package } from 'lucide-react';
 import { useRSCNavigation, isRSCError, parseRSCError } from '@/hooks/useRSCNavigation';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { fetcher } from '@/utils/fetcher';
 
-export default function ProjectPage() {
-  const params = useParams();
-  const projectName = params.name as string;
+interface ProjectPageProps {
+  params: Promise<{ name: string }>;
+}
+
+function ProjectPageContent({ params }: ProjectPageProps) {
+  const { name: projectName } = use(params);
   const [aiDescription, setAiDescription] = useState<AIGeneratedDescription | null>(null);
   const { navigate, refresh, state: navState, clearError } = useRSCNavigation();
 
-  const { data, error, isLoading, mutate } = useSWR<GitHubApiResponse>(
-    `/api/github/${projectName}`,
-    fetcher,
-    {
-      onError: (error) => {
-        console.error('SWR Error:', error);
-        // Check if it's an RSC-related error
-        if (isRSCError(error)) {
-          const rscDetails = parseRSCError(error);
-          console.log('RSC Error Details:', rscDetails);
+  // State for manual fetch
+  const [data, setData] = useState<GitHubApiResponse | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  
+  // Fetch project data
+  useEffect(() => {
+    let isMounted = true;
+    
+    if (!projectName) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    const fetchData = async () => {
+      try {
+        if (!isMounted) return;
+        
+        // Use absolute URL for server-side compatibility
+        const baseUrl = typeof window !== 'undefined' ? '' : 'http://localhost:3001';
+        const result = await fetcher<GitHubApiResponse>(`${baseUrl}/api/github/${projectName}`);
+        
+        if (isMounted) {
+          setData(result);
+          setError(null);
+          setIsLoading(false);
         }
-      },
-      errorRetryCount: 3,
-      errorRetryInterval: 2000,
-      shouldRetryOnError: (error) => {
-        // Don't retry on RSC errors, let our navigation handler deal with them
-        return !isRSCError(error);
+      } catch (err) {
+        if (isMounted) {
+          setError(err as Error);
+          setData(null);
+          setIsLoading(false);
+        }
       }
-    }
-  );
+    };
+    
+    fetchData();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [projectName]);
+
+
 
   // Generate AI description when data is loaded
   useEffect(() => {
-    if (data && data.readme) {
+    if (data?.repository && data?.readme && !aiDescription) {
       const description = AIDescriptionGenerator.generateDescription({
         repository: data.repository,
         readme: data.readme || '',
@@ -105,41 +131,69 @@ export default function ProjectPage() {
       });
       setAiDescription(description);
     }
-  }, [data]);
+  }, [data, aiDescription, projectName]);
+
+
 
   if (isLoading || navState.isNavigating) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600 dark:text-gray-400">Loading project details...</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 dark:text-gray-400">Loading project details...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   if (error || navState.error) {
-    const currentError = navState.error || error;
-    const isRSCErr = isRSCError(currentError);
+    const displayError = error || navState.error;
+    const errorMessage = displayError instanceof Error ? displayError.message : displayError || 'The requested project could not be found or is not accessible.';
     
     return (
-      <ErrorDisplay
-        error={currentError}
-        onRetry={() => {
-          clearError();
-          if (isRSCErr) {
-            refresh();
-          } else {
-            mutate();
-          }
-        }}
-        onGoHome={() => navigate('/')}
-        showDetails={true}
-      />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center max-w-md mx-auto p-6">
+            <div className="text-red-500 mb-4">
+              <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Project Not Found</h1>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {errorMessage}
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  clearError();
+                  // Trigger manual refetch
+                  setIsLoading(true);
+                  setError(null);
+                }}
+                className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={() => {
+                  navigate('/');
+                }}
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Back to Home
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   }
 
   if (!data) {
+    console.log(`[ProjectPage] No data available, returning null for ${projectName}`);
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -149,6 +203,17 @@ export default function ProjectPage() {
       </div>
     );
   }
+
+  console.log(`[ProjectPage] Rendering successful page for ${projectName}:`, {
+    hasRepository: !!data.repository,
+    hasCommits: !!data.commits,
+    hasLanguages: !!data.languages,
+    hasReleases: !!data.releases,
+    hasReadme: !!data.readme,
+    hasAiDescription: !!aiDescription,
+    repositoryName: data.repository?.name,
+    repositoryFullName: data.repository?.name
+  });
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -342,5 +407,28 @@ export default function ProjectPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProjectPage({ params }: ProjectPageProps) {
+  const { name: projectName } = use(params);
+  const componentKey = `project-${projectName}`;
+  
+  return (
+    <ErrorBoundary
+      key={componentKey}
+      onError={(error, errorInfo) => {
+        console.error('[ProjectPage] ErrorBoundary caught error:', {
+          error,
+          errorInfo,
+          projectName,
+          errorMessage: error?.message,
+          errorStack: error?.stack,
+          errorName: error?.name
+        });
+      }}
+    >
+      <ProjectPageContent params={params} />
+    </ErrorBoundary>
   );
 }

@@ -2,7 +2,6 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
-import Link from 'next/link';
 
 interface Props {
   children: ReactNode;
@@ -14,32 +13,40 @@ interface State {
   hasError: boolean;
   error: Error | null;
   errorInfo: ErrorInfo | null;
-  retryCount: number;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  private maxRetries = 3;
-
+export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null,
-      retryCount: 0
+      errorInfo: null
     };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
+  static getDerivedStateFromError(error: Error): State {
+    console.error('[ErrorBoundary] Error caught by boundary:', error);
     return {
       hasError: true,
-      error
+      error,
+      errorInfo: null
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    
+    console.error('[ErrorBoundary] Component did catch:', {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      },
+      errorInfo: {
+        componentStack: errorInfo.componentStack
+      },
+      timestamp: new Date().toISOString()
+    });
+
     this.setState({
       error,
       errorInfo
@@ -50,109 +57,96 @@ class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    // Log RSC-specific errors
-    if (error.message.includes('_rsc') || error.message.includes('ERR_ABORTED')) {
-      console.error('RSC Navigation Error detected:', {
-        message: error.message,
-        stack: error.stack,
-        componentStack: errorInfo.componentStack
-      });
+    // Prevent page from closing by catching the error
+    try {
+      // Log to external service if needed
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('errorBoundaryTriggered', {
+          detail: { error, errorInfo }
+        }));
+      }
+    } catch (loggingError) {
+      console.error('[ErrorBoundary] Failed to log error:', loggingError);
     }
   }
 
   handleRetry = () => {
-    if (this.state.retryCount < this.maxRetries) {
-      this.setState(prevState => ({
-        hasError: false,
-        error: null,
-        errorInfo: null,
-        retryCount: prevState.retryCount + 1
-      }));
-    }
-  };
-
-  handleReset = () => {
+    console.log('[ErrorBoundary] Retry button clicked');
     this.setState({
       hasError: false,
       error: null,
-      errorInfo: null,
-      retryCount: 0
+      errorInfo: null
     });
+  };
+
+  handleGoHome = () => {
+    console.log('[ErrorBoundary] Go home button clicked');
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
   };
 
   render() {
     if (this.state.hasError) {
-      // Use custom fallback if provided
+      // Custom fallback UI
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      const isRSCError = this.state.error?.message.includes('_rsc') || 
-                        this.state.error?.message.includes('ERR_ABORTED');
-      
-      const canRetry = this.state.retryCount < this.maxRetries;
-
+      // Default error UI
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
-          <div className="max-w-md w-full text-center">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700">
-              <AlertTriangle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-              
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                {isRSCError ? 'Navigation Error' : 'Something went wrong'}
-              </h1>
-              
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                {isRSCError 
-                  ? 'There was an issue with page navigation. This might be a temporary problem.'
-                  : 'An unexpected error occurred while loading this page.'
-                }
-              </p>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
+            <div className="text-red-500 mb-4">
+              <AlertTriangle className="w-16 h-16 mx-auto" />
+            </div>
+            
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              Something went wrong
+            </h1>
+            
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              An unexpected error occurred. This page has been stabilized to prevent closure.
+            </p>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="mb-6 text-left">
-                  <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Error Details (Development)
-                  </summary>
-                  <div className="bg-gray-100 dark:bg-gray-700 rounded p-3 text-xs font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-32">
-                    <div className="mb-2">
-                      <strong>Error:</strong> {this.state.error.message}
-                    </div>
-                    {this.state.error.stack && (
-                      <div>
-                        <strong>Stack:</strong>
-                        <pre className="whitespace-pre-wrap mt-1">{this.state.error.stack}</pre>
-                      </div>
-                    )}
-                  </div>
-                </details>
-              )}
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                {canRetry && (
-                  <button
-                    onClick={this.handleRetry}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Retry ({this.maxRetries - this.state.retryCount} left)
-                  </button>
-                )}
-                
-                <Link
-                  href="/"
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                >
-                  <Home className="w-4 h-4" />
-                  Go Home
-                </Link>
-              </div>
-
-              {!canRetry && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                  Maximum retry attempts reached. Please refresh the page or go home.
+            {/* Error details for development */}
+            {process.env.NODE_ENV === 'development' && this.state.error && (
+              <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg text-left">
+                <h3 className="font-semibold text-sm text-gray-900 dark:text-white mb-2">
+                  Error Details:
+                </h3>
+                <p className="text-xs text-gray-700 dark:text-gray-300 font-mono break-all">
+                  {this.state.error.message}
                 </p>
-              )}
+                {this.state.errorInfo?.componentStack && (
+                  <details className="mt-2">
+                    <summary className="text-xs text-gray-600 dark:text-gray-400 cursor-pointer">
+                      Component Stack
+                    </summary>
+                    <pre className="text-xs text-gray-600 dark:text-gray-400 mt-1 whitespace-pre-wrap">
+                      {this.state.errorInfo.componentStack}
+                    </pre>
+                  </details>
+                )}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <button
+                onClick={this.handleRetry}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Try Again
+              </button>
+              
+              <button
+                onClick={this.handleGoHome}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                <Home className="w-4 h-4" />
+                Go Home
+              </button>
             </div>
           </div>
         </div>
@@ -163,37 +157,26 @@ class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export default ErrorBoundary;
-
-// Hook for functional components to handle errors
+// Hook version for functional components
 export function useErrorHandler() {
-  return (error: Error, errorInfo?: ErrorInfo) => {
-    console.error('Error caught by useErrorHandler:', error, errorInfo);
-    
-    // Handle RSC-specific errors
-    if (error.message.includes('_rsc') || error.message.includes('ERR_ABORTED')) {
-      console.error('RSC Error detected, attempting recovery...');
-      
-      // Force a hard refresh for RSC errors
-      if (typeof window !== 'undefined') {
-        window.location.reload();
-      }
+  const handleError = (error: Error, errorInfo?: ErrorInfo) => {
+    console.error('[useErrorHandler] Error handled:', {
+      error: {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      },
+      errorInfo,
+      timestamp: new Date().toISOString()
+    });
+
+    // Prevent page closure by handling the error gracefully
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('unhandledError', {
+        detail: { error, errorInfo }
+      }));
     }
   };
-}
 
-// Higher-order component for wrapping components with error boundary
-export function withErrorBoundary<P extends object>(
-  Component: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<Props, 'children'>
-) {
-  const WrappedComponent = (props: P) => (
-    <ErrorBoundary {...errorBoundaryProps}>
-      <Component {...props} />
-    </ErrorBoundary>
-  );
-  
-  WrappedComponent.displayName = `withErrorBoundary(${Component.displayName || Component.name})`;
-  
-  return WrappedComponent;
+  return { handleError };
 }

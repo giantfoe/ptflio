@@ -227,22 +227,18 @@ export default function Streams() {
     setSelectedVideoId(null);
   }, []);
 
-  const handleInstagramEmbed = useCallback((postUrl: string, title?: string) => {
-    // Extract post ID from Instagram URL
-    const postIdMatch = postUrl.match(/\/p\/([A-Za-z0-9_-]+)\/?/);
-    if (postIdMatch) {
-      // Find the current item to get thumbnail and image URLs
-      const currentItem = data?.data?.find(item => item.url === postUrl);
-      
-      setInstagramEmbed({
-        isOpen: true,
-        postId: postIdMatch[1],
-        postUrl,
-        title,
-        thumbnailUrl: currentItem?.thumbnailUrl,
-        imageUrl: currentItem?.imageUrl
-      });
-    }
+  const handleInstagramEmbed = useCallback((postId: string, postUrl: string, title?: string) => {
+    // Find the current item to get thumbnail and image URLs
+    const currentItem = data?.data?.find(item => item.url === postUrl);
+    
+    setInstagramEmbed({
+      isOpen: true,
+      postId,
+      postUrl,
+      title,
+      thumbnailUrl: currentItem?.thumbnailUrl,
+      imageUrl: currentItem?.imageUrl
+    });
   }, [data?.data]);
 
   const closeInstagramEmbed = useCallback(() => {
@@ -501,7 +497,20 @@ export default function Streams() {
           <>
             {activeTab === 'instagram' ? (
               <EnhancedInstagramDisplay
-                apiPosts={data.data}
+                apiPosts={data.data?.map(item => ({
+                  id: item.id?.toString() || `instagram-${Date.now()}`,
+                  source: "instagram" as const,
+                  title: item.title || item.text || 'Instagram Post',
+                  text: item.text || item.title,
+                  url: item.url,
+                  imageUrl: item.imageUrl || item.thumbnailUrl,
+                  thumbnailUrl: item.thumbnailUrl || item.imageUrl,
+                  timestamp: item.timestamp,
+                  metadata: {
+                    media_type: item.metadata?.media_type,
+                    isFromAPI: true
+                  }
+                })) || []}
                 onInstagramEmbed={handleInstagramEmbed}
                 showManagementLink={true}
               />

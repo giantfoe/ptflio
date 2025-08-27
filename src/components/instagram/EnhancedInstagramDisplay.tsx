@@ -22,7 +22,7 @@ interface MediaItem {
 
 interface EnhancedInstagramDisplayProps {
   apiPosts?: MediaItem[];
-  onInstagramEmbed?: (postUrl: string, title?: string) => void;
+  onInstagramEmbed?: (postId: string, postUrl: string, title?: string) => void;
   showManagementLink?: boolean;
   className?: string;
   useJuicerFeed?: boolean;
@@ -121,14 +121,22 @@ export default function EnhancedInstagramDisplay({
 
   const handleInstagramEmbed = useCallback((postUrl: string, title?: string) => {
     if (onInstagramEmbed) {
-      onInstagramEmbed(postUrl, title);
+      // Extract post ID from Instagram URL
+      const postIdMatch = postUrl.match(/\/p\/([A-Za-z0-9_-]+)\/?/);
+      if (postIdMatch) {
+        onInstagramEmbed(postIdMatch[1], postUrl, title);
+      }
     }
   }, [onInstagramEmbed]);
 
   // Handle Juicer post clicks
   const handleJuicerPostClick = useCallback((post: ManualInstagramPost) => {
     if (onInstagramEmbed) {
-      onInstagramEmbed(post.url, post.title);
+      // Extract post ID from Instagram URL
+      const postIdMatch = post.url.match(/\/p\/([A-Za-z0-9_-]+)\/?/);
+      if (postIdMatch) {
+        onInstagramEmbed(postIdMatch[1], post.url, post.title);
+      }
     }
   }, [onInstagramEmbed]);
 

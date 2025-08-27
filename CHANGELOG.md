@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.9] - 2025-01-27
+
+### Fixed
+- Fixed TypeScript error in project details page where displayError.message was accessed on a string | Error type
+- Enhanced error message handling to properly check if displayError is an Error instance before accessing .message property
+- Improved type safety in error display logic for better build reliability
+
+## [0.2.8] - 2025-01-27
+
+### Added
+- ErrorBoundary component to prevent page termination from unhandled React errors
+- Enhanced error handling in project details page to catch and gracefully handle component errors
+- Comprehensive error logging with component stack traces and error context
+- Fallback UI for error states with retry functionality and navigation options
+- Development mode error details display for debugging purposes
+
+### Fixed
+- Project details page unexpected closing/termination issues
+- Unhandled React errors that could cause page crashes
+- TypeScript compilation errors in ErrorBoundary imports across components
+- Enhanced stability of project page rendering with proper error boundaries
+
+### Technical
+- Wrapped ProjectPage component with ErrorBoundary for error isolation
+- Added useErrorHandler hook for functional component error handling
+- Implemented error recovery mechanisms with retry and navigation fallbacks
+- Enhanced error boundary with custom error handlers and logging
+
 ## [0.2.7] - 2025-01-27
 
 ### Fixed
