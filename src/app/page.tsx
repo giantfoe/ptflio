@@ -1,6 +1,7 @@
 import Hero from "@/components/sections/Hero";
 import Projects from "@/components/sections/Projects";
 import Streams from "@/components/sections/Streams";
+import SectionTransition from "@/components/ui/SectionTransition";
 
 export default function Home() {
   return (
@@ -16,7 +17,9 @@ export default function Home() {
       </header>
       <main>
         <Hero />
+        <SectionTransition fromSection="hero" toSection="projects" />
         <Projects />
+        <SectionTransition fromSection="projects" toSection="streams" />
         <Streams />
       </main>
       <footer className="py-12 text-center text-sm text-neutral-400">

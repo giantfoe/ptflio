@@ -1,24 +1,63 @@
 "use client";
 import { Parallax } from "react-scroll-parallax";
+import { LiquidGlassButton } from "@/components/ui/liquid-glass-button";
 
 export default function Hero() {
   return (
-    <section id="home" className="min-h-[100svh] flex flex-col items-center justify-center relative overflow-hidden">
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black via-neutral-900 to-black opacity-90" />
+    <section id="home" className="min-h-[100svh] flex flex-col items-center justify-center relative overflow-hidden pb-8" style={{ backgroundImage: 'url(/2.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Floating Elements with Parallax */}
+      <Parallax speed={-10} className="absolute top-20 left-10 opacity-30">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-xl" />
+      </Parallax>
+      <Parallax speed={-15} className="absolute top-40 right-20 opacity-20">
+        <div className="w-48 h-48 rounded-full bg-gradient-to-br from-green-500/20 to-blue-500/20 blur-2xl" />
+      </Parallax>
+      <Parallax speed={-5} className="absolute bottom-20 left-1/4 opacity-25">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-lg" />
+      </Parallax>
+
+      {/* Gradient Overlay for text readability */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/20 via-black/10 to-black/30" />
+
+      {/* Main Content */}
       <Parallax speed={-20}>
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white text-center">
+        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white text-center drop-shadow-2xl">
           Your Name
         </h1>
       </Parallax>
       <Parallax speed={10}>
-        <p className="mt-6 max-w-xl text-center text-neutral-300">
+        <p className="mt-6 max-w-xl text-center text-neutral-200 drop-shadow-lg">
           Multidisciplinary developer • Designer • Creative Technologist
         </p>
       </Parallax>
-      <div className="absolute bottom-6 flex gap-4">
-        <a href="#projects" className="px-4 py-2 rounded-full bg-white/10 text-white border border-white/20 hover:bg-white/20">View Projects</a>
-        <a href="#streams" className="px-4 py-2 rounded-full bg-white/10 text-white border border-white/20 hover:bg-white/20">Live Streams</a>
-      </div>
+      
+      {/* Call to Action Buttons */}
+      <Parallax speed={5}>
+        <div className="mt-8 flex gap-4">
+          <LiquidGlassButton
+            variant="default"
+            size="lg"
+            animation="float"
+            glow="subtle"
+            ripple={true}
+            shimmer={true}
+            className="px-6 py-3 rounded-full"
+            onClick={() => document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })}
+          >View Projects</LiquidGlassButton>
+          <LiquidGlassButton
+            variant="primary"
+            size="lg"
+            animation="liquid"
+            glow="liquid"
+            ripple={true}
+            shimmer={true}
+            className="px-6 py-3 rounded-full"
+            onClick={() => document.querySelector('#streams')?.scrollIntoView({ behavior: 'smooth' })}
+          >Live Streams</LiquidGlassButton>
+        </div>
+      </Parallax>
+
+
     </section>
   );
 }

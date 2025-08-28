@@ -5,6 +5,7 @@ import LazyMediaGrid from "@/components/ui/LazyMediaGrid";
 import Modal from "@/components/ui/Modal";
 import InstagramEmbedModal from "@/components/ui/InstagramEmbedModal";
 import EnhancedInstagramDisplay from "@/components/instagram/EnhancedInstagramDisplay";
+import { LiquidGlassButton } from "@/components/ui/liquid-glass-button";
 import { createComponentLogger } from "@/utils/logger";
 import { RefreshCw, AlertCircle, CheckCircle, Clock, Wifi, WifiOff, Database } from "lucide-react";
 
@@ -346,15 +347,22 @@ export default function Streams() {
             </div>
             
             {/* Refresh button */}
-            <button
+            <LiquidGlassButton
               onClick={handleRefresh}
               disabled={isLoading || isValidating}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              variant="ghost"
+              size="sm"
+              animation="morph"
+              glow="subtle"
+              ripple={true}
+              className="flex items-center gap-2 px-3 py-1.5"
               title="Refresh data"
             >
-              <RefreshCw className={`w-4 h-4 ${(isLoading || isValidating) ? 'animate-spin' : ''}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
+              <span className="flex items-center gap-2">
+                <RefreshCw className={`w-4 h-4 ${(isLoading || isValidating) ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </span>
+            </LiquidGlassButton>
           </div>
         </div>
         
@@ -371,44 +379,48 @@ export default function Streams() {
         )}
         
         <div className="flex gap-4 mb-8">
-          <button
+          <LiquidGlassButton
             onClick={() => handleTabChange("youtube")}
             disabled={!serviceStatus.youtube.available}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-              activeTab === "youtube" 
-                ? "bg-white/10" 
-                : serviceStatus.youtube.available
-                  ? "bg-transparent hover:bg-white/5"
-                  : "bg-transparent opacity-50 cursor-not-allowed"
-            }`}
+            variant={activeTab === "youtube" ? "primary" : "ghost"}
+            size="default"
+            animation={activeTab === "youtube" ? "liquid" : "float"}
+            glow={activeTab === "youtube" ? "liquid" : "none"}
+            ripple={true}
+            shimmer={activeTab === "youtube"}
+            className="flex items-center gap-2 px-4 py-2"
             title={!serviceStatus.youtube.available ? serviceStatus.youtube.error : 
                    serviceStatus.youtube.responseTime ? `Response time: ${serviceStatus.youtube.responseTime}ms` : undefined}
           >
-            <span>YouTube</span>
-            {getStatusIcon('youtube')}
-            {serviceStatus.youtube.responseTime && serviceStatus.youtube.available && (
-              <span className="text-xs text-neutral-400">({serviceStatus.youtube.responseTime}ms)</span>
-            )}
-          </button>
-          <button
+            <span className="flex items-center gap-2">
+              <span>YouTube</span>
+              {getStatusIcon('youtube')}
+              {serviceStatus.youtube.responseTime && serviceStatus.youtube.available && (
+                <span className="text-xs text-neutral-400">({serviceStatus.youtube.responseTime}ms)</span>
+              )}
+            </span>
+          </LiquidGlassButton>
+          <LiquidGlassButton
             onClick={() => handleTabChange("instagram")}
             disabled={!serviceStatus.instagram.available}
-            className={`flex items-center gap-2 px-4 py-2 rounded-md transition-colors ${
-              activeTab === "instagram" 
-                ? "bg-white/10" 
-                : serviceStatus.instagram.available
-                  ? "bg-transparent hover:bg-white/5"
-                  : "bg-transparent opacity-50 cursor-not-allowed"
-            }`}
+            variant={activeTab === "instagram" ? "primary" : "ghost"}
+            size="default"
+            animation={activeTab === "instagram" ? "liquid" : "float"}
+            glow={activeTab === "instagram" ? "liquid" : "none"}
+            ripple={true}
+            shimmer={activeTab === "instagram"}
+            className="flex items-center gap-2 px-4 py-2"
             title={!serviceStatus.instagram.available ? serviceStatus.instagram.error : 
                    serviceStatus.instagram.responseTime ? `Response time: ${serviceStatus.instagram.responseTime}ms` : undefined}
           >
-            <span>Instagram</span>
-            {getStatusIcon('instagram')}
-            {serviceStatus.instagram.responseTime && serviceStatus.instagram.available && (
-              <span className="text-xs text-neutral-400">({serviceStatus.instagram.responseTime}ms)</span>
-            )}
-          </button>
+            <span className="flex items-center gap-2">
+              <span>Instagram</span>
+              {getStatusIcon('instagram')}
+              {serviceStatus.instagram.responseTime && serviceStatus.instagram.available && (
+                <span className="text-xs text-neutral-400">({serviceStatus.instagram.responseTime}ms)</span>
+              )}
+            </span>
+          </LiquidGlassButton>
         </div>
         
         {/* Service status indicator */}
@@ -474,14 +486,21 @@ export default function Streams() {
                   )}
                 </div>
               </div>
-              <button
-                onClick={handleRefresh}
-                className="flex items-center gap-1 px-2 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 rounded transition-colors"
-                title="Retry loading"
-              >
-                <RefreshCw className="w-3 h-3" />
-                Retry
-              </button>
+              <LiquidGlassButton
+            onClick={handleRefresh}
+            variant="accent"
+            size="sm"
+            animation="ripple"
+            glow="subtle"
+            ripple={true}
+            className="flex items-center gap-1 px-2 py-1 text-xs"
+            title="Retry loading"
+          >
+            <span className="flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" />
+              <span>Retry</span>
+            </span>
+          </LiquidGlassButton>
             </div>
           </div>
         )}
@@ -543,9 +562,9 @@ export default function Streams() {
                   </span>
                   <span className="flex items-center gap-1">
                     {data.metadata.cached ? (
-                      <><Database className="w-3 h-3" /> From cache</>
+                      <span className="flex items-center gap-1"><Database className="w-3 h-3" /> From cache</span>
                     ) : (
-                      <><Wifi className="w-3 h-3" /> From API</>
+                      <span className="flex items-center gap-1"><Wifi className="w-3 h-3" /> From API</span>
                     )}
                   </span>
                   {healthData?.timestamp && (

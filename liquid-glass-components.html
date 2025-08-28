@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liquid Glass Components</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .component-title {
+            color: white;
+            text-align: center;
+            margin-bottom: 3rem;
+            font-size: 2.5rem;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Base Liquid Glass Styles with Cross-Browser Compatibility */
+        .liquid-glass {
+            position: relative;
+            /* Fallback background for browsers without backdrop-filter support */
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.37),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+        }
+
+        /* Enhanced backdrop-filter with browser support detection */
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .liquid-glass {
+                background: rgba(255, 255, 255, 0.15);
+                backdrop-filter: blur(10px) saturate(180%);
+                -webkit-backdrop-filter: blur(10px) saturate(180%);
+            }
+        }
+
+        /* Fallback for older browsers */
+        @supports not (backdrop-filter: blur(1px)) and not (-webkit-backdrop-filter: blur(1px)) {
+            .liquid-glass {
+                background: rgba(255, 255, 255, 0.3);
+                box-shadow: 
+                    0 8px 32px rgba(31, 38, 135, 0.5),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.4),
+                    inset 0 0 20px rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .liquid-glass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.8), 
+                transparent
+            );
+            z-index: 2;
+        }
+
+        .liquid-glass::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.05) 100%
+            );
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* 1. Liquid Glass Card */
+        .glass-card {
+            padding: 2rem;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 20px 40px rgba(31, 38, 135, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-card h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-card p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* 2. Liquid Glass Button */
+        .glass-button {
+            padding: 1rem 2rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            color: white;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-button:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+            box-shadow: 
+                0 15px 35px rgba(31, 38, 135, 0.6),
+                inset 0 3px 6px rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-button:active {
+            transform: scale(0.98);
+        }
+
+        /* 3. Liquid Glass Navigation */
+        .glass-nav {
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 80px;
+        }
+
+        .glass-nav .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-nav .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-nav .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .glass-nav .nav-links a:hover {
+            color: white;
+        }
+
+        /* 4. Liquid Glass Modal */
+        .glass-modal {
+            padding: 3rem;
+            max-width: 500px;
+            margin: 2rem auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .glass-modal::before {
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.6), 
+                transparent
+            );
+        }
+
+        .glass-modal h2 {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-modal p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* 5. Liquid Glass Widget */
+        .glass-widget {
+            padding: 1.5rem;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 16px;
+        }
+
+        .glass-widget .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-widget .widget-title {
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .glass-widget .widget-value {
+            color: white;
+            font-size: 2rem;
+            font-weight: 300;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-widget .widget-change {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* 6. Liquid Glass Input with Cross-Browser Support */
+        .glass-input {
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            /* Fallback background */
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            width: 100%;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Enhanced input with backdrop-filter support */
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .glass-input {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+        }
+
+        .glass-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .glass-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            /* Fallback focus state */
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 
+                0 8px 25px rgba(31, 38, 135, 0.4),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Enhanced focus with backdrop-filter support */
+        @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+            .glass-input:focus {
+                background: rgba(255, 255, 255, 0.15);
+            }
+        }
+
+        /* 7. Liquid Glass Sidebar */
+        .glass-sidebar {
+            padding: 2rem 1.5rem;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .glass-sidebar .sidebar-item {
+            padding: 1rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 3;
+        }
+
+        .glass-sidebar .sidebar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        /* 8. Liquid Glass FAB */
+        .glass-fab {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .glass-fab::after {
+            border-radius: 50%;
+        }
+
+        .glass-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 20px 40px rgba(31, 38, 135, 0.6),
+                inset 0 3px 6px rgba(255, 255, 255, 0.4);
+        }
+
+        .glass-fab svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+            
+            .glass-nav {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1.5rem 1rem;
+            }
+            
+            .glass-nav .nav-links {
+                gap: 1rem;
+            }
+        }
+
+        /* Animation for liquid effect */
+        @keyframes liquidShine {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .liquid-glass:hover::before {
+            animation: liquidShine 1.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="component-title">Liquid Glass Components</h1>
+    
+    <div class="container">
+        <!-- 1. Liquid Glass Card -->
+        <div class="liquid-glass glass-card">
+            <h3>Liquid Glass Card</h3>
+            <p>This is a beautiful liquid glass card component with smooth transparency effects, subtle reflections, and elegant hover animations.</p>
+        </div>
+
+        <!-- 2. Liquid Glass Button -->
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 200px;">
+            <button class="liquid-glass glass-button">
+                Liquid Glass Button
+            </button>
+        </div>
+
+        <!-- 3. Liquid Glass Navigation -->
+        <nav class="liquid-glass glass-nav">
+            <div class="logo">Brand</div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="#">About</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+
+        <!-- 4. Liquid Glass Modal -->
+        <div class="liquid-glass glass-modal">
+            <h2>Modal Title</h2>
+            <p>This is a liquid glass modal overlay with enhanced transparency and depth effects.</p>
+            <button class="liquid-glass glass-button">Close Modal</button>
+        </div>
+
+        <!-- 5. Liquid Glass Widget -->
+        <div class="liquid-glass glass-widget">
+            <div class="widget-header">
+                <span class="widget-title">Revenue</span>
+                <span>📈</span>
+            </div>
+            <div class="widget-value">$24,500</div>
+            <div class="widget-change">+12.5% from last month</div>
+        </div>
+
+        <!-- 6. Liquid Glass Input -->
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 200px; padding: 2rem;">
+            <input type="text" class="glass-input" placeholder="Enter your message...">
+        </div>
+
+        <!-- 7. Liquid Glass Sidebar -->
+        <div class="liquid-glass glass-sidebar">
+            <div class="sidebar-item">Dashboard</div>
+            <div class="sidebar-item">Analytics</div>
+            <div class="sidebar-item">Settings</div>
+            <div class="sidebar-item">Profile</div>
+        </div>
+
+        <!-- 8. Liquid Glass Input Field Container -->
+        <div class="liquid-glass" style="padding: 2rem;">
+            <h3 style="color: white; margin-bottom: 1rem; position: relative; z-index: 3;">Contact Form</h3>
+            <input type="email" class="glass-input" placeholder="Your email address" style="margin-bottom: 1rem;">
+            <textarea class="glass-input" placeholder="Your message" rows="4" style="resize: vertical; font-family: inherit;"></textarea>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="liquid-glass glass-fab">
+        <svg viewBox="0 0 24 24">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+        </svg>
+    </button>
+
+    <script>
+        // Add some interactive behavior
+        document.querySelectorAll('.glass-button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.3);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

@@ -1,5 +1,30 @@
 'use client';
 
+import { 
+  Code, 
+  Server, 
+  Database, 
+  Smartphone, 
+  Cloud, 
+  Settings,
+  FileText,
+  FileCode,
+  Atom,
+  Triangle,
+  Zap,
+  Globe,
+  Palette,
+  Coffee,
+  Shield,
+  Gem,
+  Leaf,
+  Circle,
+  HardDrive,
+  Container,
+  Flame,
+  LucideIcon 
+} from 'lucide-react';
+
 export interface TechnologyGroup {
   name: string;
   technologies: Array<{
@@ -9,12 +34,12 @@ export interface TechnologyGroup {
   }>;
   totalPercentage: number;
   color: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 export interface TechnologyIcon {
   name: string;
-  icon: string;
+  icon: LucideIcon;
   color: string;
 }
 
@@ -22,8 +47,8 @@ export interface TechnologyIcon {
 const TECHNOLOGY_CATEGORIES = {
   frontend: {
     name: 'Frontend',
-    color: 'bg-blue-500',
-    icon: '🎨',
+    color: 'bg-slate-600',
+    icon: Code,
     technologies: [
       'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular', 'Svelte',
       'HTML', 'CSS', 'SCSS', 'Sass', 'Less', 'Tailwind CSS', 'Bootstrap',
@@ -33,8 +58,8 @@ const TECHNOLOGY_CATEGORIES = {
   },
   backend: {
     name: 'Backend',
-    color: 'bg-green-500',
-    icon: '⚙️',
+    color: 'bg-emerald-700',
+    icon: Server,
     technologies: [
       'Node.js', 'Python', 'Java', 'Go', 'Rust', 'PHP', 'C#', 'Ruby',
       'C++', 'C', 'Kotlin', 'Scala', 'Elixir', 'Erlang', 'Haskell',
@@ -44,8 +69,8 @@ const TECHNOLOGY_CATEGORIES = {
   },
   database: {
     name: 'Database',
-    color: 'bg-purple-500',
-    icon: '🗄️',
+    color: 'bg-indigo-700',
+    icon: Database,
     technologies: [
       'MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'SQLite', 'MariaDB',
       'CouchDB', 'Cassandra', 'DynamoDB', 'Firebase Firestore',
@@ -55,8 +80,8 @@ const TECHNOLOGY_CATEGORIES = {
   },
   mobile: {
     name: 'Mobile',
-    color: 'bg-pink-500',
-    icon: '📱',
+    color: 'bg-violet-700',
+    icon: Smartphone,
     technologies: [
       'React Native', 'Flutter', 'Swift', 'Kotlin', 'Dart',
       'Xamarin', 'Ionic', 'Cordova', 'PhoneGap', 'NativeScript',
@@ -65,8 +90,8 @@ const TECHNOLOGY_CATEGORIES = {
   },
   devops: {
     name: 'DevOps & Cloud',
-    color: 'bg-orange-500',
-    icon: '☁️',
+    color: 'bg-amber-700',
+    icon: Cloud,
     technologies: [
       'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Firebase',
       'Vercel', 'Netlify', 'Heroku', 'DigitalOcean', 'Terraform',
@@ -76,8 +101,8 @@ const TECHNOLOGY_CATEGORIES = {
   },
   tools: {
     name: 'Tools & Others',
-    color: 'bg-gray-500',
-    icon: '🔧',
+    color: 'bg-stone-600',
+    icon: Settings,
     technologies: [
       'Git', 'GitHub', 'GitLab', 'Bitbucket', 'ESLint', 'Prettier',
       'Jest', 'Vitest', 'Cypress', 'Playwright', 'Storybook',
@@ -90,39 +115,39 @@ const TECHNOLOGY_CATEGORIES = {
 // Technology icons mapping
 const TECHNOLOGY_ICONS: Record<string, TechnologyIcon> = {
   // Frontend
-  'JavaScript': { name: 'JavaScript', icon: '🟨', color: 'bg-yellow-500' },
-  'TypeScript': { name: 'TypeScript', icon: '🔷', color: 'bg-blue-600' },
-  'React': { name: 'React', icon: '⚛️', color: 'bg-cyan-500' },
-  'Vue': { name: 'Vue', icon: '💚', color: 'bg-green-500' },
-  'Angular': { name: 'Angular', icon: '🅰️', color: 'bg-red-600' },
-  'HTML': { name: 'HTML', icon: '🌐', color: 'bg-orange-600' },
-  'CSS': { name: 'CSS', icon: '🎨', color: 'bg-blue-500' },
-  'SCSS': { name: 'SCSS', icon: '💅', color: 'bg-pink-500' },
-  'Sass': { name: 'Sass', icon: '💅', color: 'bg-pink-500' },
+  'JavaScript': { name: 'JavaScript', icon: FileCode, color: 'bg-yellow-500' },
+  'TypeScript': { name: 'TypeScript', icon: FileText, color: 'bg-blue-600' },
+  'React': { name: 'React', icon: Atom, color: 'bg-cyan-500' },
+  'Vue': { name: 'Vue', icon: Zap, color: 'bg-green-500' },
+  'Angular': { name: 'Angular', icon: Shield, color: 'bg-red-600' },
+  'HTML': { name: 'HTML', icon: Globe, color: 'bg-orange-600' },
+  'CSS': { name: 'CSS', icon: Palette, color: 'bg-blue-500' },
+  'SCSS': { name: 'SCSS', icon: Palette, color: 'bg-pink-500' },
+  'Sass': { name: 'Sass', icon: Palette, color: 'bg-pink-500' },
   
   // Backend
-  'Python': { name: 'Python', icon: '🐍', color: 'bg-blue-500' },
-  'Java': { name: 'Java', icon: '☕', color: 'bg-red-500' },
-  'Go': { name: 'Go', icon: '🐹', color: 'bg-cyan-600' },
-  'Rust': { name: 'Rust', icon: '🦀', color: 'bg-orange-700' },
-  'PHP': { name: 'PHP', icon: '🐘', color: 'bg-purple-600' },
-  'C#': { name: 'C#', icon: '🔷', color: 'bg-purple-700' },
-  'Ruby': { name: 'Ruby', icon: '💎', color: 'bg-red-700' },
+  'Python': { name: 'Python', icon: Code, color: 'bg-blue-500' },
+  'Java': { name: 'Java', icon: Coffee, color: 'bg-red-500' },
+  'Go': { name: 'Go', icon: Zap, color: 'bg-cyan-600' },
+  'Rust': { name: 'Rust', icon: Shield, color: 'bg-orange-700' },
+  'PHP': { name: 'PHP', icon: Server, color: 'bg-purple-600' },
+  'C#': { name: 'C#', icon: Code, color: 'bg-purple-700' },
+  'Ruby': { name: 'Ruby', icon: Gem, color: 'bg-red-700' },
   
   // Database
-  'MongoDB': { name: 'MongoDB', icon: '🍃', color: 'bg-green-700' },
-  'PostgreSQL': { name: 'PostgreSQL', icon: '🐘', color: 'bg-blue-700' },
-  'MySQL': { name: 'MySQL', icon: '🐬', color: 'bg-orange-600' },
-  'Redis': { name: 'Redis', icon: '🔴', color: 'bg-red-600' },
-  'SQLite': { name: 'SQLite', icon: '💾', color: 'bg-gray-600' },
+  'MongoDB': { name: 'MongoDB', icon: Leaf, color: 'bg-green-700' },
+  'PostgreSQL': { name: 'PostgreSQL', icon: Database, color: 'bg-blue-700' },
+  'MySQL': { name: 'MySQL', icon: Database, color: 'bg-orange-600' },
+  'Redis': { name: 'Redis', icon: Circle, color: 'bg-red-600' },
+  'SQLite': { name: 'SQLite', icon: HardDrive, color: 'bg-gray-600' },
   
   // DevOps
-  'Docker': { name: 'Docker', icon: '🐳', color: 'bg-blue-600' },
-  'Kubernetes': { name: 'Kubernetes', icon: '☸️', color: 'bg-blue-700' },
-  'AWS': { name: 'AWS', icon: '☁️', color: 'bg-orange-500' },
-  'Firebase': { name: 'Firebase', icon: '🔥', color: 'bg-yellow-600' },
-  'Vercel': { name: 'Vercel', icon: '▲', color: 'bg-black' },
-  'Netlify': { name: 'Netlify', icon: '🌐', color: 'bg-teal-600' },
+  'Docker': { name: 'Docker', icon: Container, color: 'bg-blue-600' },
+  'Kubernetes': { name: 'Kubernetes', icon: Settings, color: 'bg-blue-700' },
+  'AWS': { name: 'AWS', icon: Cloud, color: 'bg-orange-500' },
+  'Firebase': { name: 'Firebase', icon: Flame, color: 'bg-yellow-600' },
+  'Vercel': { name: 'Vercel', icon: Triangle, color: 'bg-black' },
+  'Netlify': { name: 'Netlify', icon: Globe, color: 'bg-teal-600' },
 };
 
 /**

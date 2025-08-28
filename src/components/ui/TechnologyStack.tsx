@@ -50,11 +50,11 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
   
   if (!hasValidData) {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 ${className}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className={className}>
+        <h3 className="text-lg font-semibold text-white mb-4">
           Technology Stack
         </h3>
-        <p className="text-gray-500 dark:text-gray-400 text-center py-8">
+        <p className="text-gray-300 text-center py-8">
           No language data available
         </p>
       </div>
@@ -69,8 +69,8 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
     const totalBytes = Object.values(validLanguages).reduce((sum, bytes) => sum + (typeof bytes === 'number' ? bytes : 0), 0);
     
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 ${className}`}>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className={className}>
+        <h3 className="text-lg font-semibold text-white mb-4">
           Technology Stack
         </h3>
         <div className="flex flex-wrap gap-2">
@@ -93,12 +93,12 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
   }
   
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div className={className}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <h3 className="text-lg font-semibold text-white">
           Technology Stack
         </h3>
-        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+        <div className="flex items-center gap-4 text-sm text-gray-300">
           <span>{totalLanguages} languages</span>
           <span>•</span>
           <span>{formattedSize}</span>
@@ -109,18 +109,16 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
       
       {/* Primary Technology Highlight */}
       {primaryTech && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+        <div className="mb-6 p-4 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
           <div className="flex items-center gap-3">
             {primaryTech.icon && (
-              <span className="text-2xl" title={primaryTech.icon.name}>
-                {primaryTech.icon.icon}
-              </span>
+              <primaryTech.icon.icon className="w-6 h-6" title={primaryTech.icon.name} />
             )}
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white">
+              <h4 className="font-semibold text-white">
                 Primary Language: {primaryTech.name}
               </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-gray-300">
                 {isNaN(primaryTech.percentage) ? 0 : primaryTech.percentage}% of codebase
               </p>
             </div>
@@ -133,11 +131,11 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
         {groups.map((group: TechnologyGroup) => (
           <div key={group.name} className="space-y-3">
             <div className="flex items-center gap-2">
-              <span className="text-lg">{group.icon}</span>
-              <h4 className="font-medium text-gray-900 dark:text-white">
+              <group.icon className="w-5 h-5" />
+              <h4 className="font-medium text-white">
                 {group.name}
               </h4>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
+              <span className="text-sm text-gray-300">
                 ({isNaN(group.totalPercentage) ? 0 : group.totalPercentage}%)
               </span>
             </div>
@@ -161,40 +159,40 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
       </div>
       
       {/* Summary Stats */}
-      <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="mt-6 pt-6 border-t border-white/20">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="p-3 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
+            <div className="text-lg font-semibold text-white">
               {totalLanguages}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-300">
               Languages
             </div>
           </div>
           
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="p-3 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
+            <div className="text-lg font-semibold text-white">
               {formattedSize}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-300">
               Repository Size
             </div>
           </div>
           
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="p-3 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
+            <div className="text-lg font-semibold text-white">
               ~{(isNaN(estimatedLOC) ? 0 : estimatedLOC).toLocaleString()}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-300">
               Lines of Code
             </div>
           </div>
           
-          <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+          <div className="p-3 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
+            <div className="text-lg font-semibold text-white">
               {groups.length}
             </div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
+            <div className="text-xs text-gray-300">
               Tech Categories
             </div>
           </div>

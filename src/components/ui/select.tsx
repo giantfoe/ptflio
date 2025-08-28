@@ -50,14 +50,14 @@ const SelectTrigger = React.forwardRef<HTMLButtonElement, SelectTriggerProps>(
         aria-haspopup="listbox"
         aria-expanded={open}
         className={cn(
-          'flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
+          'flex h-12 w-full items-center justify-between rounded-xl glass-effect backdrop-blur-md border border-white/20 bg-white/5 px-4 py-3 text-sm text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-accent-blue focus:ring-offset-2 focus:border-white/40 focus:bg-white/10 hover:border-white/30 hover:bg-white/8 disabled:cursor-not-allowed disabled:opacity-50',
           className
         )}
         onClick={() => setOpen(!open)}
         {...props}
       >
         {children || <span className="text-muted-foreground">{placeholder}</span>}
-        <ChevronDown className="h-4 w-4 opacity-50" />
+        <ChevronDown className="h-4 w-4 text-white/70" />
       </button>
     );
   }
@@ -73,7 +73,7 @@ const SelectValue = ({ placeholder }: { placeholder?: string }) => {
   const { value } = context;
   
   return (
-    <span className={cn(!value && 'text-muted-foreground')}>
+    <span className={cn(!value && 'text-white/50')}>
       {value || placeholder}
     </span>
   );
@@ -112,7 +112,7 @@ const SelectContent = React.forwardRef<
     <div
       ref={ref}
       className={cn(
-        'absolute top-full z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border bg-popover text-popover-foreground shadow-md',
+        'absolute top-full z-50 mt-2 max-h-60 w-full overflow-auto rounded-xl glass-effect backdrop-blur-md border border-white/20 bg-black/40 text-white shadow-2xl',
         className
       )}
       {...props}
@@ -141,8 +141,8 @@ const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
       <div
         ref={ref}
         className={cn(
-          'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-          isSelected && 'bg-accent text-accent-foreground',
+          'relative flex w-full cursor-default select-none items-center rounded-lg py-3 pl-4 pr-2 text-sm outline-none transition-all duration-200 hover:bg-white/10 hover:text-white focus:bg-white/10 focus:text-white',
+          isSelected && 'bg-accent-blue/20 text-white font-medium',
           className
         )}
         onClick={() => {

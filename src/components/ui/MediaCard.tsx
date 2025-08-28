@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink, Instagram, Youtube, Github, Play } from "lucide-react";
+import { LiquidGlassEffects } from './liquid-glass-effects';
 
 interface MediaCardProps {
   id: string;
@@ -57,15 +58,15 @@ export default function MediaCard({
   
   // Determine card size based on variant
   const getCardClasses = () => {
-    const baseClasses = "bg-white/5 rounded-lg border border-white/10 overflow-hidden hover:border-white/20 transition-all duration-300 cursor-pointer";
+    const baseClasses = "relative bg-gradient-to-br from-white/10 via-white/5 to-white/10 rounded-lg border border-white/20 overflow-hidden hover:border-white/30 transition-all duration-500 cursor-pointer backdrop-blur-md group";
     
     switch (variant) {
       case "featured":
-        return `${baseClasses} transform hover:scale-[1.02] shadow-lg hover:shadow-xl`;
+        return `${baseClasses} transform hover:scale-[1.02] shadow-lg hover:shadow-xl hover:shadow-white/10`;
       case "large":
         return `${baseClasses} col-span-2 row-span-2`;
       default:
-        return `${baseClasses} hover:shadow-md`;
+        return `${baseClasses} hover:shadow-md hover:shadow-white/5`;
     }
   };
   
@@ -153,9 +154,12 @@ export default function MediaCard({
       aria-label={`${source} post: ${title || 'Media content'}${variant === 'featured' ? ' (Featured)' : ''}${isVideo ? ' (Video)' : ''}${isInstagram && instagramPostId ? ' (Embeddable)' : ''}`}
       aria-describedby={`card-${id}-description`}
     >
+      <LiquidGlassEffects className="absolute inset-0 opacity-60 group-hover:opacity-80 transition-opacity duration-500">
+        <></>
+      </LiquidGlassEffects>
       {/* Media Section */}
       {displayImage && !imageError ? (
-        <div className={`relative w-full ${getImageHeight()} bg-white/5`}>
+        <div className={`relative w-full ${getImageHeight()} bg-white/5 z-10`}>
           {isLoading && (
             <div className="absolute inset-0 bg-white/10 animate-pulse rounded-t-lg" />
           )}
@@ -174,7 +178,7 @@ export default function MediaCard({
           {/* Video Play Button */}
           {isVideo && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-black/60 backdrop-blur-sm rounded-full p-3 hover:bg-black/70 transition-colors">
+              <div className="bg-black/60 backdrop-blur-sm rounded-full p-3 hover:bg-black/70 transition-all duration-300 hover:scale-110 border border-white/20 hover:border-white/40">
                 <Play className="w-6 h-6 text-white fill-current" />
               </div>
             </div>
@@ -184,7 +188,7 @@ export default function MediaCard({
           {isInstagram && instagramPostId && (
             <div className="absolute top-3 right-3">
               <div 
-                className="bg-pink-500/80 backdrop-blur-sm rounded-full p-2 hover:bg-pink-500 transition-colors" 
+                className="bg-pink-500/80 backdrop-blur-sm rounded-full p-2 hover:bg-pink-500 transition-all duration-300 hover:scale-110 border border-pink-300/30 hover:border-pink-300/60" 
                 title="Click to view Instagram embed"
                 role="img"
                 aria-label="Instagram embed available"
@@ -208,7 +212,7 @@ export default function MediaCard({
       )}
 
       {/* Content Section */}
-      <div className="p-4">
+      <div className="p-4 relative z-10">
         {/* Hidden description for screen readers */}
         <div id={`card-${id}-description`} className="sr-only">
           {`${source} content from ${formatDate(timestamp)}. ${text ? text.substring(0, 100) + (text.length > 100 ? '...' : '') : 'No description available.'}`}

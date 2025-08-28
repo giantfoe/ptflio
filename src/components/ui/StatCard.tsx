@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Star, GitFork, Eye, AlertCircle, Calendar, Code, Package } from 'lucide-react';
+import { Star, GitFork, Eye, AlertCircle, Calendar, Code, Package, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
   label: string;
@@ -93,10 +93,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <div 
       className={`
-        bg-white dark:bg-gray-800 
-        border border-gray-200 dark:border-gray-700
-        rounded-lg shadow-sm
-        hover:shadow-md transition-shadow duration-200
+        backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-xl hover:bg-white/15 transition-all duration-300
         ${sizeClasses.container}
         ${className}
       `}
@@ -106,20 +103,20 @@ export const StatCard: React.FC<StatCardProps> = ({
           <div className="flex items-center gap-2 mb-1">
             {IconComponent && (
               <IconComponent 
-                className={`${sizeClasses.icon} text-gray-500 dark:text-gray-400`} 
+                className={`${sizeClasses.icon} text-gray-300`} 
               />
             )}
-            <span className={`${sizeClasses.label} font-medium text-gray-600 dark:text-gray-300 uppercase tracking-wide`}>
+            <span className={`${sizeClasses.label} font-medium text-gray-200 uppercase tracking-wide`}>
               {label}
             </span>
           </div>
           
-          <div className={`${sizeClasses.value} text-gray-900 dark:text-white ${trendColor}`}>
+          <div className={`${sizeClasses.value} text-white ${trendColor}`}>
             {formatValue(value)}
           </div>
           
           {subtitle && (
-            <p className={`${sizeClasses.subtitle} text-gray-500 dark:text-gray-400 mt-1`}>
+            <p className={`${sizeClasses.subtitle} text-gray-300 mt-1`}>
               {subtitle}
             </p>
           )}
@@ -128,7 +125,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         {trend && trend !== 'neutral' && (
           <div className={`flex items-center ${trendColor}`}>
             <span className="text-xs font-medium">
-              {trend === 'up' ? '↗' : '↘'}
+              {trend === 'up' && <TrendingUp className="w-4 h-4 text-green-400" />}
+              {trend === 'down' && <TrendingDown className="w-4 h-4 text-red-400" />}
             </span>
           </div>
         )}

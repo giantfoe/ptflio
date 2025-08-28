@@ -2,9 +2,14 @@
 
 import React from 'react';
 import useSWR from 'swr';
+import { Parallax } from 'react-scroll-parallax';
 import { useRSCNavigation } from '@/hooks/useRSCNavigation';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
 import { AbstractProjectImage } from '@/components/ui/AbstractProjectImage';
+import { SectionHeader } from '@/components/ui/section-header';
+import { LiquidGlassCard } from '@/components/ui/liquid-glass-card';
+import { LiquidGlassButton } from '@/components/ui/liquid-glass-button';
+import { LiquidGlassEffects } from '@/components/ui/liquid-glass-effects';
 import { ExternalLink, Globe } from 'lucide-react';
 
 interface Project {
@@ -43,19 +48,51 @@ export default function Projects() {
   if (!data?.items?.length) return <p>No projects available</p>;
 
   return (
-    <section id="projects" className="min-h-[100svh] py-24 bg-[color-mix(in_oklab,black,white_5%)]">
-      <div className="max-w-6xl mx-auto px-6">
-        <h2 className="text-3xl sm:text-4xl font-semibold mb-8 text-white">Projects</h2>
-        <p className="text-neutral-300 mb-6">Explore my GitHub repositories showcasing various projects and contributions.</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+    <section id="projects" className="min-h-[100svh] py-16 px-6 relative overflow-hidden" style={{ backgroundImage: 'url(/3.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Floating Elements with Parallax - Similar to Hero */}
+      <Parallax speed={-8} className="absolute top-20 left-10 opacity-30">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-xl" />
+      </Parallax>
+      <Parallax speed={-12} className="absolute top-40 right-20 opacity-20">
+        <div className="w-48 h-48 rounded-full bg-gradient-to-br from-green-500/20 to-blue-500/20 blur-2xl" />
+      </Parallax>
+      <Parallax speed={-6} className="absolute bottom-20 left-1/4 opacity-25">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-lg" />
+      </Parallax>
+      <Parallax speed={-10} className="absolute top-1/2 right-1/3 opacity-15">
+        <div className="w-40 h-40 rounded-full bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 blur-xl" />
+      </Parallax>
+
+      {/* Gradient Overlay for text readability - Similar to Hero */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/30 via-black/20 to-black/40" />
+      
+      <div className="container-width relative z-10">
+        {/* Section Header with Parallax */}
+        <Parallax speed={-15}>
+          <SectionHeader
+            title="Featured Projects"
+            subtitle="Explore my GitHub repositories showcasing various projects and contributions with live deployments and detailed documentation."
+            size="lg"
+            titleGradient="accent"
+            className="drop-shadow-2xl"
+          />
+        </Parallax>
+        
+        {/* Project Cards with Parallax */}
+        <Parallax speed={5}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
           {data.items.map((project) => {
             const hasDeployment = project.summary?.live_links && project.summary.live_links.length > 0;
             const primaryLiveLink = hasDeployment ? project.summary!.live_links![0] : null;
             
             return (
-              <div 
+              <LiquidGlassCard 
                 key={project.name}
-                className="group rounded-xl border border-white/10 bg-white/5 p-6 hover:border-white/30 transition relative"
+                variant="liquid"
+                size="lg"
+                glow="liquid"
+                animation="float"
+                className="group relative overflow-hidden"
                 style={{
                   opacity: navState.isNavigating ? 0.7 : 1,
                   pointerEvents: navState.isNavigating ? 'none' : 'auto'
@@ -105,27 +142,40 @@ export default function Projects() {
                   )}
                   
                   {/* Action Buttons */}
-                  <div className="flex items-center justify-between mt-4">
-                    <button
+                  <div className="flex items-center gap-3 mt-6">
+                    <LiquidGlassButton
+                      variant="secondary"
+                      size="sm"
+                      animation="morph"
                       onClick={() => navigate(`/projects/${project.name}`)}
-                      className="text-blue-400 text-sm hover:text-blue-300 transition-colors"
+                      className="flex-1"
+                      ripple={true}
+                      shimmer={true}
                     >
-                      {navState.isNavigating ? 'Loading...' : 'View Details →'}
-                    </button>
+                      {navState.isNavigating ? 'Loading...' : 'View Details'}
+                    </LiquidGlassButton>
                     
                     {hasDeployment && (
-                      <button
+                      <LiquidGlassButton
+                        variant="primary"
+                        size="sm"
+                        animation="liquid"
+                        glow="liquid"
                         onClick={(e) => {
                           e.stopPropagation();
                           if (primaryLiveLink) {
                             window.open(primaryLiveLink, '_blank', 'noopener,noreferrer');
                           }
                         }}
-                        className="flex items-center gap-1 px-3 py-1 bg-blue-600/20 border border-blue-500/30 rounded-full text-blue-400 text-xs font-medium hover:bg-blue-600/30 transition-colors"
+                        className="flex items-center gap-2"
+                        ripple={true}
+                        shimmer={true}
                       >
-                        <ExternalLink className="w-3 h-3" />
-                        <span>Live Demo</span>
-                      </button>
+                        <span className="flex items-center gap-2">
+                          <ExternalLink className="w-4 h-4" />
+                          Live Demo
+                        </span>
+                      </LiquidGlassButton>
                     )}
                   </div>
                   
@@ -136,10 +186,11 @@ export default function Projects() {
                     </div>
                   )}
                 </article>
-              </div>
+              </LiquidGlassCard>
             );
           })}
-        </div>
+          </div>
+        </Parallax>
       </div>
     </section>
   );

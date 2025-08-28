@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import { Parallax } from 'react-scroll-parallax';
 import { ProjectHeader } from '@/components/ui/ProjectHeader';
 import { AIDescriptionGenerator } from '@/utils/aiDescriptionGenerator';
 
@@ -226,7 +227,21 @@ function ProjectPageContent({ params }: ProjectPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen relative overflow-hidden" style={{ backgroundImage: 'url(/19.jpg)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      {/* Floating Elements with Parallax */}
+      <Parallax speed={-10} className="absolute top-20 left-10 opacity-30">
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 blur-xl" />
+      </Parallax>
+      <Parallax speed={-15} className="absolute top-40 right-20 opacity-20">
+        <div className="w-48 h-48 rounded-full bg-gradient-to-br from-green-500/20 to-blue-500/20 blur-2xl" />
+      </Parallax>
+      <Parallax speed={-5} className="absolute bottom-20 left-1/4 opacity-25">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 blur-lg" />
+      </Parallax>
+
+      {/* Gradient Overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+
       {/* Project Header */}
       <ProjectHeader
         name={projectName}
@@ -249,47 +264,49 @@ function ProjectPageContent({ params }: ProjectPageProps) {
         owner={data.repository?.owner?.login || 'Unknown'}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 relative z-10">
         {/* Live Preview Section */}
         {data.repository?.homepage && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          <section className="mb-12 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <h2 className="text-2xl font-bold text-white mb-6">
               Live Preview
             </h2>
-            <LivePreview
-              url={data.repository.homepage}
-              title={`${projectName} - Live Demo`}
-              height={600}
-              showControls={true}
-              allowFullscreen={true}
-            />
+            <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 hover:shadow-3xl">
+              <LivePreview
+                url={data.repository.homepage}
+                title={`${projectName} - Live Demo`}
+                height={600}
+                showControls={true}
+                allowFullscreen={true}
+              />
+            </div>
           </section>
         )}
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Recent Activity */}
-            <section>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <section className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                 <GitCommit className="w-6 h-6" />
                 Recent Activity
               </h2>
               
               {data.commits && data.commits.length > 0 ? (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden hover:bg-white/15 hover:scale-[1.01] transition-all duration-300 hover:shadow-3xl">
                   {data.commits.map((commit: { sha: string; message: string; author: string; date: string }, index: number) => (
                     <div 
                       key={commit.sha} 
-                      className={`p-4 ${index !== data.commits.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}
+                      className={`p-4 ${index !== data.commits.length - 1 ? 'border-b border-white/10' : ''}`}
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0" />
+                        <div className="w-2 h-2 bg-green-400 rounded-full mt-2 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-gray-900 dark:text-white mb-1">
+                          <p className="font-medium text-white mb-1">
                             {commit.message.split('\n')[0]}
                           </p>
-                          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-4 text-sm text-gray-300">
                             <span>by {commit.author}</span>
                             <span className="flex items-center gap-1">
                               <Calendar className="w-3 h-3" />
@@ -302,36 +319,36 @@ function ProjectPageContent({ params }: ProjectPageProps) {
                   ))}
                 </div>
               ) : (
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
-                  <GitCommit className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                  <p className="text-gray-500 dark:text-gray-400">No recent commits available</p>
+                <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-8 text-center hover:bg-white/15 transition-all duration-300">
+                  <GitCommit className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-300">No recent commits available</p>
                 </div>
               )}
             </section>
 
             {/* Releases */}
             {data.releases && data.releases.length > 0 && (
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <section className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
                   <Package className="w-6 h-6" />
                   Latest Releases
                 </h2>
                 
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl overflow-hidden hover:bg-white/15 hover:scale-[1.01] transition-all duration-300 hover:shadow-3xl">
                   {data.releases.slice(0, 5).map((release: { tag_name: string; name: string; published_at: string; url: string; body: string }, index: number) => (
                     <div 
                       key={release.tag_name} 
-                      className={`p-4 ${index !== Math.min(4, data.releases.length - 1) ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}
+                      className={`p-4 ${index !== Math.min(4, data.releases.length - 1) ? 'border-b border-white/10' : ''}`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                          <h3 className="font-semibold text-white mb-1">
                             {release.name || release.tag_name}
                           </h3>
-                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                          <p className="text-sm text-gray-200 mb-2">
                             {release.body ? release.body.substring(0, 150) + (release.body.length > 150 ? '...' : '') : 'No description available'}
                           </p>
-                          <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-4 text-xs text-gray-300">
                             <span>v{release.tag_name}</span>
                             <span>{formatDate(release.published_at)}</span>
                           </div>
@@ -345,63 +362,44 @@ function ProjectPageContent({ params }: ProjectPageProps) {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Repository Statistics */}
-            <section>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Repository Statistics
-              </h3>
-              <div className="space-y-3">
+          <div className="space-y-6 lg:space-y-8">
+            {/* Repository Stats */}
+            <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-4 sm:p-6 hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 hover:shadow-3xl animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <h3 className="text-lg font-semibold mb-4 text-white">Repository Stats</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-4">
                 <StatCard
-                  label="Total Stars"
-                  value={data.repository?.stargazers_count || 0}
                   icon="star"
-                  size="sm"
+                  label="Stars"
+                  value={data.repository?.stargazers_count || 0}
                 />
                 <StatCard
+                  icon="fork"
                   label="Forks"
                   value={data.repository?.forks_count || 0}
-                  icon="fork"
-                  size="sm"
                 />
                 <StatCard
-                  label="Open Issues"
-                  value={data.repository?.open_issues_count || 0}
-                  icon="issue"
-                  size="sm"
-                />
-                <StatCard
+                  icon="eye"
                   label="Watchers"
                   value={data.repository?.watchers_count || 0}
-                  icon="eye"
-                  size="sm"
+                />
+                <StatCard
+                  icon="issue"
+                  label="Issues"
+                  value={data.repository?.open_issues_count || 0}
                 />
               </div>
-            </section>
+            </div>
 
             {/* Language Breakdown */}
             {data.languages && data.languages.length > 0 && (
-              <section>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Language Breakdown
-                </h3>
-                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="space-y-3">
-                    {data.languages
-                      .sort((a, b) => b.bytes - a.bytes)
-                      .map((language) => {
-                        return (
-                          <div key={language.name} className="flex items-center justify-between">
-                            <TechnologyBadge name={language.name} size="sm" />
-                            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                              {language.percentage}%
-                            </span>
-                          </div>
-                        );
-                      })}
-                  </div>
+              <div className="backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-4 sm:p-6 hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 hover:shadow-3xl animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                <h3 className="text-lg font-semibold mb-4 text-white">Languages</h3>
+                <div className="space-y-3">
+                  {data.languages.slice(0, 5).map((lang, index) => (
+                    <TechnologyBadge key={index} name={lang.name} percentage={lang.percentage} />
+                  ))}
                 </div>
-              </section>
+              </div>
             )}
           </div>
         </div>

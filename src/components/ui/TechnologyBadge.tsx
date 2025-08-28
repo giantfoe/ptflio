@@ -95,13 +95,13 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'outlined':
-        return `border-2 border-current text-current bg-transparent ${colorClass.replace('bg-', 'border-').replace('bg-', 'text-')}`;
+        return `backdrop-blur-md bg-white/10 border-2 border-white/30 text-white hover:bg-white/20`;
       case 'filled':
-        return `${colorClass} text-white`;
+        return `backdrop-blur-md bg-white/20 border border-white/30 text-white hover:bg-white/30`;
       case 'progress':
-        return 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-200 dark:border-gray-700';
+        return 'bg-transparent text-white border-none';
       default:
-        return `${colorClass} text-white`;
+        return `backdrop-blur-md bg-white/15 border border-white/25 text-white hover:bg-white/25`;
     }
   };
   
@@ -112,25 +112,23 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
   // Progress bar variant
   if (variant === 'progress' && showProgressBar && percentage !== undefined) {
     return (
-      <div className={`w-full ${className}`}>
+      <div className={`w-full backdrop-blur-md bg-white/10 border border-white/20 rounded-lg p-3 shadow-lg hover:bg-white/15 transition-all duration-300 ${className}`}>
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             {showIcon && techIcon && (
-              <span className="text-lg" title={techIcon.name}>
-                {techIcon.icon}
-              </span>
+              <techIcon.icon className="w-4 h-4" title={techIcon.name} />
             )}
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-medium text-white">
               {name}
             </span>
           </div>
-          <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <span className="text-sm font-medium text-gray-300">
             {validPercentage}%
           </span>
         </div>
-        <div className={`w-full bg-gray-200 dark:bg-gray-700 rounded-full ${progressSizeClass}`}>
+        <div className={`w-full bg-white/20 rounded-full ${progressSizeClass}`}>
           <div 
-            className={`${progressSizeClass} rounded-full transition-all duration-500 ease-out ${colorClass}`}
+            className={`${progressSizeClass} rounded-full transition-all duration-500 ease-out bg-emerald-700`}
             style={{ width: `${Math.max(0, Math.min(100, validPercentage))}%` }}
           />
         </div>
@@ -153,9 +151,7 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
       title={showPercentage && percentage !== undefined ? `${name}: ${validPercentage}%` : name}
     >
       {showIcon && techIcon && (
-        <span className="text-sm" title={techIcon.name}>
-          {techIcon.icon}
-        </span>
+        <techIcon.icon className="w-4 h-4" title={techIcon.name} />
       )}
       <span>{displayText}</span>
       {showPercentage && percentage !== undefined && !showProgressBar && (
