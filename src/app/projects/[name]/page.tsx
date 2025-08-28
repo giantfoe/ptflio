@@ -61,7 +61,7 @@ import { LivePreview } from '@/components/ui/LivePreview';
 import { StatCard } from '@/components/ui/StatCard';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
 import { AIGeneratedDescription } from '@/utils/aiDescriptionGenerator';
-import { GitCommit, Calendar, Package } from 'lucide-react';
+import { GitCommit, Calendar, Package, ArrowLeft } from 'lucide-react';
 import { useRSCNavigation, isRSCError, parseRSCError } from '@/hooks/useRSCNavigation';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -241,6 +241,20 @@ function ProjectPageContent({ params }: ProjectPageProps) {
 
       {/* Gradient Overlay for readability */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
+
+      {/* Back Navigation Button */}
+      <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <button
+          onClick={() => navigate('/')}
+          className="group flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-2xl hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:shadow-3xl"
+          aria-label="Back to home"
+        >
+          <ArrowLeft className="w-5 h-5 text-white group-hover:text-blue-200 transition-colors duration-300" />
+          <span className="text-white font-medium group-hover:text-blue-200 transition-colors duration-300 hidden sm:inline">
+            Back to Home
+          </span>
+        </button>
+      </div>
 
       {/* Project Header */}
       <ProjectHeader

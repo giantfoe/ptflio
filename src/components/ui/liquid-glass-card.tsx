@@ -107,7 +107,19 @@ const LiquidGlassCard = React.forwardRef<HTMLDivElement, LiquidGlassCardProps>(
         onKeyDown={focusable ? (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            handleClick?.(e as any);
+            // Trigger click event for keyboard activation
+            if (props.onClick) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              const syntheticEvent = {
+                currentTarget: e.currentTarget,
+                target: e.target,
+                clientX: rect.left + rect.width / 2,
+                clientY: rect.top + rect.height / 2,
+                preventDefault: () => {},
+                stopPropagation: () => {}
+              } as React.MouseEvent<HTMLDivElement>;
+              props.onClick(syntheticEvent);
+            }
           }
         } : undefined}
         {...props}

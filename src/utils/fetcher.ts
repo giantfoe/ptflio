@@ -3,22 +3,25 @@
  * Provides a standardized way to fetch data with error handling
  */
 
+import { createComponentLogger } from './logger';
+
 interface FetchError extends Error {
   info?: unknown;
   status?: number;
 }
 
+const logger = createComponentLogger('Fetcher');
+
 export const fetcher = async <T = unknown>(url: string): Promise<T> => {
-  console.log(`[Fetcher] Starting fetch for: ${url}`);
+  logger.debug('Starting fetch', { url });
   
   try {
     const res = await fetch(url);
-    console.log(`[Fetcher] Response received:`, {
+    logger.debug('Response received', {
       url,
       status: res.status,
       statusText: res.statusText,
-      ok: res.ok,
-      headers: Object.fromEntries(res.headers.entries())
+      ok: res.ok
     });
     
     if (!res.ok) {
@@ -30,21 +33,24 @@ export const fetcher = async <T = unknown>(url: string): Promise<T> => {
         error.info = 'Failed to parse error response';
       }
       error.status = res.status;
-      console.error(`[Fetcher] Error response:`, error);
+      logger.warn('Fetch request failed', { url, status: res.status, statusText: res.statusText });
       throw error;
     }
     
     const data = await res.json() as T;
-    console.log(`[Fetcher] Successfully parsed JSON for ${url}:`, {
+    logger.debug('Successfully parsed JSON', {
+      url,
       dataType: typeof data,
       isArray: Array.isArray(data),
-      hasData: !!data,
-      keys: data && typeof data === 'object' ? Object.keys(data) : 'N/A'
+      hasData: !!data
     });
     
     return data;
   } catch (error) {
-    console.error(`[Fetcher] Fetch failed for ${url}:`, error);
+    logger.warn('Fetch operation failed', { 
+      url, 
+      error: error instanceof Error ? error.message : String(error) 
+    });
     throw error;
   }
 };

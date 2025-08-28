@@ -126,7 +126,20 @@ function createLogEntry(
 
 // Output log entry based on environment
 function outputLog(entry: LogEntry): void {
-  const logMessage = JSON.stringify(entry, null, entry.environment === 'server' ? 0 : 2);
+  // In production, only log errors and warnings to console
+  // In development, log everything for debugging
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  
+  // Skip console output in production for info and debug levels
+  if (isProduction && (entry.level === LogLevel.INFO || entry.level === LogLevel.DEBUG)) {
+    return;
+  }
+  
+  // Format message differently for production vs development
+  const logMessage = isDevelopment 
+    ? JSON.stringify(entry, null, 2)
+    : `[${entry.level}] ${entry.message}${entry.context ? ` - ${JSON.stringify(entry.context)}` : ''}`;
   
   switch (entry.level) {
     case LogLevel.ERROR:
@@ -136,13 +149,19 @@ function outputLog(entry: LogEntry): void {
       console.warn(logMessage);
       break;
     case LogLevel.INFO:
-      console.info(logMessage);
+      if (isDevelopment) {
+        console.info(logMessage);
+      }
       break;
     case LogLevel.DEBUG:
-      console.debug(logMessage);
+      if (isDevelopment) {
+        console.debug(logMessage);
+      }
       break;
     default:
-      console.log(logMessage);
+      if (isDevelopment) {
+        console.log(logMessage);
+      }
   }
 }
 

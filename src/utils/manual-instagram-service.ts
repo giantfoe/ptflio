@@ -321,17 +321,44 @@ class ManualInstagramService {
    */
   async fetchJuicerFeed(feedId: string = 'ayorinde_john', page: number = 1, perPage: number = 20): Promise<JuicerFeedItem[]> {
     try {
-      const response = await fetch(`https://www.juicer.io/api/feeds/${feedId}?page=${page}&per=${perPage}`);
+      // Add timeout and proper error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
+      const response = await fetch(`https://www.juicer.io/api/feeds/${feedId}?page=${page}&per=${perPage}`, {
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'Portfolio-Website/1.0'
+        }
+      });
+      
+      clearTimeout(timeoutId);
       
       if (!response.ok) {
+        // Handle specific HTTP errors
+        if (response.status === 404) {
+          this.logger.warn('Juicer feed not found', { feedId, status: response.status });
+          return [];
+        }
+        if (response.status === 429) {
+          this.logger.warn('Juicer API rate limit exceeded', { feedId, status: response.status });
+          return [];
+        }
         throw new Error(`Juicer API error: ${response.status} ${response.statusText}`);
       }
       
       const data: JuicerApiResponse = await response.json();
       
+      // Validate response structure
+      if (!data || !Array.isArray(data.posts)) {
+        this.logger.warn('Invalid Juicer API response structure', { feedId, responseKeys: Object.keys(data || {}) });
+        return [];
+      }
+      
       // Filter for Instagram posts only
       const instagramPosts = data.posts.filter(post => 
-        post.source.source === 'Instagram' || 
+        post.source?.source === 'Instagram' || 
         post.edit?.includes('instagram.com') ||
         post.unformatted?.full?.includes('instagram.com')
       );
@@ -346,7 +373,20 @@ class ManualInstagramService {
       
       return instagramPosts;
     } catch (error) {
-      this.logger.error('Failed to fetch Juicer feed', { feedId, error });
+      // Enhanced error handling with specific error types
+      if (error instanceof Error) {
+        if (error.name === 'AbortError') {
+          this.logger.warn('Juicer feed request timed out', { feedId, timeout: '10s' });
+        } else if (error.message.includes('Failed to fetch')) {
+          this.logger.warn('Network error fetching Juicer feed - possibly offline or CORS issue', { feedId });
+        } else {
+          this.logger.warn('Juicer feed fetch failed', { feedId, error: error.message });
+        }
+      } else {
+        this.logger.warn('Unknown error fetching Juicer feed', { feedId });
+      }
+      
+      // Return empty array to gracefully handle failures
       return [];
     }
   }
@@ -417,24 +457,26 @@ class ManualInstagramService {
       return manualPosts;
     }
     
-    try {
-      const juicerItems = await this.fetchJuicerFeed(juicerFeedId);
-      const juicerPosts = this.convertJuicerToManualPosts(juicerItems);
-      
-      // Combine and deduplicate based on URL
-      const allPosts = [...manualPosts, ...juicerPosts];
-      const uniquePosts = allPosts.filter((post, index, self) => 
-        index === self.findIndex(p => p.url === post.url)
-      );
-      
-      // Sort by date, newest first
-      return uniquePosts.sort((a, b) => 
-        new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
-      );
-    } catch (error) {
-      this.logger.error('Failed to get combined posts', { error });
+    // Fetch Juicer items with graceful fallback
+    const juicerItems = await this.fetchJuicerFeed(juicerFeedId);
+    
+    // If no Juicer items, just return manual posts
+    if (juicerItems.length === 0) {
       return manualPosts;
     }
+    
+    const juicerPosts = this.convertJuicerToManualPosts(juicerItems);
+    
+    // Combine and deduplicate based on URL
+    const allPosts = [...manualPosts, ...juicerPosts];
+    const uniquePosts = allPosts.filter((post, index, self) => 
+      index === self.findIndex(p => p.url === post.url)
+    );
+    
+    // Sort by date, newest first
+    return uniquePosts.sort((a, b) => 
+      new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime()
+    );
   }
 
   /**

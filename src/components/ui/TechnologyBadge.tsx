@@ -116,7 +116,7 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             {showIcon && techIcon && (
-              <techIcon.icon className="w-4 h-4" title={techIcon.name} />
+              <techIcon.icon className="w-4 h-4" />
             )}
             <span className="text-sm font-medium text-white">
               {name}
@@ -151,7 +151,7 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
       title={showPercentage && percentage !== undefined ? `${name}: ${validPercentage}%` : name}
     >
       {showIcon && techIcon && (
-        <techIcon.icon className="w-4 h-4" title={techIcon.name} />
+        <techIcon.icon className="w-4 h-4" />
       )}
       <span>{displayText}</span>
       {showPercentage && percentage !== undefined && !showProgressBar && (

@@ -21,13 +21,13 @@ export default function Hero() {
 
       {/* Main Content */}
       <Parallax speed={-20}>
-        <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-white text-center drop-shadow-2xl">
-          Your Name
+        <h1 className="text-7xl sm:text-8xl lg:text-9xl font-bold tracking-tight text-white text-center drop-shadow-2xl">
+          Ayorinde John
         </h1>
       </Parallax>
       <Parallax speed={10}>
-        <p className="mt-6 max-w-xl text-center text-neutral-200 drop-shadow-lg">
-          Multidisciplinary developer • Designer • Creative Technologist
+        <p className="mt-12 max-w-2xl text-xl sm:text-2xl lg:text-3xl text-center text-neutral-200 drop-shadow-lg leading-relaxed">
+          Multimedia Producer • Software Engineer • Musician
         </p>
       </Parallax>
       

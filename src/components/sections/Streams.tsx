@@ -327,23 +327,7 @@ export default function Streams() {
           <div className="flex items-center gap-3">
             {/* Health status indicator */}
             <div className="flex items-center gap-2 text-sm">
-              {healthData ? (
-                <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-                  healthData.status === 'healthy' ? 'bg-green-500/10 text-green-400' :
-                  healthData.status === 'degraded' ? 'bg-yellow-500/10 text-yellow-400' :
-                  'bg-red-500/10 text-red-400'
-                }`}>
-                  {healthData.status === 'healthy' ? <CheckCircle className="w-3 h-3" /> :
-                   healthData.status === 'degraded' ? <AlertCircle className="w-3 h-3" /> :
-                   <WifiOff className="w-3 h-3" />}
-                  <span className="capitalize">{healthData.status}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-gray-500/10 text-gray-400">
-                  <Clock className="w-3 h-3" />
-                  <span>Checking...</span>
-                </div>
-              )}
+              
             </div>
             
             {/* Refresh button */}

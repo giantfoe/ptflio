@@ -190,73 +190,7 @@ export default function EnhancedInstagramDisplay({
   return (
     <div className={className}>
       {/* Header with display mode controls and management link */}
-      {showManagementLink && (
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            {/* Display Mode Toggle */}
-            {useJuicerFeed && (
-              <div className="flex items-center gap-2 bg-white/5 rounded-lg p-1">
-                <button
-                  onClick={() => handleDisplayModeChange('grid')}
-                  className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    currentDisplayMode === 'grid'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-neutral-400 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <Grid className="w-4 h-4 inline mr-1" />
-                  Grid
-                </button>
-                <button
-                  onClick={() => handleDisplayModeChange('juicer')}
-                  className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    currentDisplayMode === 'juicer'
-                      ? 'bg-purple-600 text-white'
-                      : 'text-neutral-400 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  <List className="w-4 h-4 inline mr-1" />
-                  Juicer
-                </button>
-                <button
-                  onClick={() => handleDisplayModeChange('combined')}
-                  className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-                    currentDisplayMode === 'combined'
-                      ? 'bg-green-600 text-white'
-                      : 'text-neutral-400 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  Combined
-                </button>
-              </div>
-            )}
-            
-            {/* Post counts */}
-            <div className="text-sm text-neutral-400">
-              {currentDisplayMode === 'combined' && combinedPosts.length > 0 ? (
-                <span>
-                  {combinedPosts.filter(p => !p.id.startsWith('juicer_')).length} manual, {' '}
-                  {combinedPosts.filter(p => p.id.startsWith('juicer_')).length} Juicer, {' '}
-                  {apiPosts.length} API posts
-                </span>
-              ) : (
-                <span>
-                  {apiPosts.length} API posts, {manualPosts.length} manual posts
-                </span>
-              )}
-            </div>
-          </div>
-          
-          <Link
-            href="/admin/instagram"
-            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white rounded-md transition-colors text-sm"
-          >
-            <Settings className="w-4 h-4" />
-            Manage Instagram
-            <ExternalLink className="w-3 h-3" />
-          </Link>
-        </div>
-      )}
+
 
       {/* Content based on display mode */}
       {currentDisplayMode === 'juicer' ? (

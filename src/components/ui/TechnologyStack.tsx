@@ -112,7 +112,7 @@ export const TechnologyStack: React.FC<TechnologyStackProps> = ({
         <div className="mb-6 p-4 backdrop-blur-md bg-white/10 rounded-lg border border-white/20 shadow-xl">
           <div className="flex items-center gap-3">
             {primaryTech.icon && (
-              <primaryTech.icon.icon className="w-6 h-6" title={primaryTech.icon.name} />
+              <primaryTech.icon.icon className="w-6 h-6" />
             )}
             <div>
               <h4 className="font-semibold text-white">

@@ -207,7 +207,7 @@ describe('Color Contrast Compliance', () => {
 
     buttonVariants.forEach(variant => {
       const { unmount } = render(
-        <LiquidGlassButton variant={variant as any}>
+        <LiquidGlassButton variant={variant as 'default' | 'primary' | 'secondary' | 'accent' | 'ghost' | 'liquid'}>
           Test button
         </LiquidGlassButton>
       );
