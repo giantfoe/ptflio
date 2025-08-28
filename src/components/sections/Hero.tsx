@@ -53,7 +53,7 @@ export default function Hero() {
             shimmer={true}
             className="px-6 py-3 rounded-full"
             onClick={() => document.querySelector('#streams')?.scrollIntoView({ behavior: 'smooth' })}
-          >Live Streams</LiquidGlassButton>
+          >Content</LiquidGlassButton>
         </div>
       </Parallax>
 

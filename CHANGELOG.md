@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- **Navigation Fix**: Fixed "Back to Home" button navigation issue on Vercel-deployed version
+  - Replaced complex useRSCNavigation hook with simple window.location.href navigation
+  - Ensures reliable navigation functionality across all production environments
+  - Eliminates RSC-related navigation failures that occurred in production deployment
+  - Maintains consistent user experience for project detail page navigation
+- **Typography Enhancement**: Updated project-wide font family from Geist to Space Grotesk for improved visual consistency
+  - Replaced Geist and Geist_Mono fonts with Space Grotesk in layout.tsx
+  - Configured Space Grotesk with weights 300, 400, 500, 600, 700 for comprehensive typography hierarchy
+  - Updated Tailwind configuration to use Space Grotesk as default sans font family
+  - Modified globals.css to reference new font variable for consistent application
+  - Maintained proper font weights and visual balance across all components and screens
 - Fixed 404 errors on dynamic routes by removing rewrite rule from vercel.json that was causing all paths to redirect to index.html
 - Removed status indicator component from Streams section to clean up UI
 - Updated vercel.json to use npm install --legacy-peer-deps during deployment

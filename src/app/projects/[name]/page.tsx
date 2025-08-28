@@ -62,7 +62,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
 import { AIGeneratedDescription } from '@/utils/aiDescriptionGenerator';
 import { GitCommit, Calendar, Package, ArrowLeft } from 'lucide-react';
-import { useRSCNavigation, isRSCError, parseRSCError } from '@/hooks/useRSCNavigation';
+// Removed useRSCNavigation import - using simple navigation instead
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { fetcher } from '@/utils/fetcher';
@@ -74,7 +74,10 @@ interface ProjectPageProps {
 function ProjectPageContent({ params }: ProjectPageProps) {
   const { name: projectName } = use(params);
   const [aiDescription, setAiDescription] = useState<AIGeneratedDescription | null>(null);
-  const { navigate, refresh, state: navState, clearError } = useRSCNavigation();
+  // Simple navigation function for reliable production behavior
+  const navigate = (path: string) => {
+    window.location.href = path;
+  };
 
   // State for manual fetch
   const [data, setData] = useState<GitHubApiResponse | null>(null);
@@ -136,7 +139,7 @@ function ProjectPageContent({ params }: ProjectPageProps) {
 
 
 
-  if (isLoading || navState.isNavigating) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="flex items-center justify-center min-h-screen">
@@ -149,8 +152,8 @@ function ProjectPageContent({ params }: ProjectPageProps) {
     );
   }
 
-  if (error || navState.error) {
-    const displayError = error || navState.error;
+  if (error) {
+    const displayError = error;
     const errorMessage = displayError instanceof Error ? displayError.message : displayError || 'The requested project could not be found or is not accessible.';
     
     return (
@@ -169,7 +172,6 @@ function ProjectPageContent({ params }: ProjectPageProps) {
             <div className="space-y-3">
               <button
                 onClick={() => {
-                  clearError();
                   // Trigger manual refetch
                   setIsLoading(true);
                   setError(null);
@@ -179,9 +181,7 @@ function ProjectPageContent({ params }: ProjectPageProps) {
                 Try Again
               </button>
               <button
-                onClick={() => {
-                  navigate('/');
-                }}
+                onClick={() => navigate('/')}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Back to Home

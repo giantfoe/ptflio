@@ -11,7 +11,7 @@ export default function Home() {
           <a href="#home" className="font-semibold">Portfolio</a>
           <div className="flex gap-4">
             <a href="#projects" className="hover:underline">Projects</a>
-            <a href="#streams" className="hover:underline">Streams</a>
+            <a href="#streams" className="hover:underline">Content</a>
           </div>
         </nav>
       </header>

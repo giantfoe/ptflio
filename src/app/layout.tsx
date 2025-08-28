@@ -1,11 +1,14 @@
 import { ReactNode } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import UXProviders from "@/components/providers/UXProviders";
 import RSCNavigationWrapper from "@/components/RSCNavigationWrapper";
 import "./globals.css";
 
-const geistSans = Geist({ subsets: ["latin"] });
-const geistMono = Geist_Mono({ subsets: ["latin"] });
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata = {
   title: "Portfolio",
@@ -15,7 +18,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${geistSans.className} ${geistMono.className} bg-neutral-950 text-neutral-100`}>
+      <body
+        className={`${spaceGrotesk.variable} antialiased bg-neutral-950 text-neutral-100`}
+      >
         <RSCNavigationWrapper>
           <UXProviders>
             {children}
