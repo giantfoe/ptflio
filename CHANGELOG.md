@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed 404 errors on dynamic routes by removing rewrite rule from vercel.json that was causing all paths to redirect to index.html
 - Removed status indicator component from Streams section to clean up UI
 - Updated vercel.json to use npm install --legacy-peer-deps during deployment
 
