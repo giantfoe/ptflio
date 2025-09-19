@@ -40,6 +40,70 @@ export async function GET(request: NextRequest) {
   const USERNAME = envOrThrow('GITHUB_USERNAME')
   const TOKEN = process.env['GITHUB_TOKEN']
   
+  // Development mode: Return mock data if using placeholder credentials
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  if (isDevelopment && USERNAME.includes('DEVELOPMENT_PLACEHOLDER')) {
+    logger.warn('GitHub service running in development mode with placeholder credentials')
+    
+    const mockRepos = [
+      {
+        name: 'portfolio-website',
+        full_name: 'developer/portfolio-website',
+        html_url: 'https://github.com/developer/portfolio-website',
+        description: 'A modern portfolio website built with Next.js and TypeScript',
+        language: 'TypeScript',
+        stargazers_count: 15,
+        forks_count: 3,
+        created_at: '2024-01-15T10:30:00Z',
+        updated_at: '2024-09-18T14:20:00Z'
+      },
+      {
+        name: 'react-components',
+        full_name: 'developer/react-components',
+        html_url: 'https://github.com/developer/react-components',
+        description: 'Reusable React components library with Tailwind CSS',
+        language: 'JavaScript',
+        stargazers_count: 8,
+        forks_count: 2,
+        created_at: '2024-02-20T09:15:00Z',
+        updated_at: '2024-09-10T16:45:00Z'
+      },
+      {
+        name: 'api-service',
+        full_name: 'developer/api-service',
+        html_url: 'https://github.com/developer/api-service',
+        description: 'RESTful API service with Node.js and Express',
+        language: 'JavaScript',
+        stargazers_count: 12,
+        forks_count: 5,
+        created_at: '2024-03-10T14:22:00Z',
+        updated_at: '2024-09-15T11:30:00Z'
+      }
+    ]
+    
+    const items = mockRepos.map(repo => ({
+      ...repo,
+      summary: `Mock summary for ${repo.name} - This is development mode data.`
+    }))
+    
+    timer.end({ repositoryCount: items.length })
+    
+    logger.info('GitHub repositories fetch completed (development mode)', {
+      repositoryCount: items.length,
+      mode: 'development'
+    })
+    
+    return NextResponse.json(
+      {
+        source: 'github',
+        count: items.length,
+        items,
+        developmentMode: true
+      },
+      { headers: { 'Cache-Tag': TAG } }
+    )
+  }
+  
   try {
     
     logger.info('Starting GitHub repositories fetch', {

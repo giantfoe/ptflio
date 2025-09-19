@@ -114,6 +114,8 @@ export class YouTubeService {
    * Validates the YouTube service configuration
    */
   validateConfiguration(): ValidationResult {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    
     const apiKeyValidation = validateEnvVar(this.config.apiKey, 'YOUTUBE_API_KEY');
     if (!apiKeyValidation.isValid) {
       return apiKeyValidation;
@@ -124,7 +126,22 @@ export class YouTubeService {
       return channelIdValidation;
     }
 
-    // Additional validation for API key format
+    // In development mode, allow placeholder credentials
+    if (isDevelopment) {
+      const isPlaceholderApiKey = this.config.apiKey.includes('DEVELOPMENT_PLACEHOLDER') || 
+                                  this.config.apiKey.includes('YOUR_API_KEY');
+      const isPlaceholderChannelId = this.config.channelId.includes('YOUR_CHANNEL_ID');
+      
+      if (isPlaceholderApiKey || isPlaceholderChannelId) {
+        serviceLogger.warn('YouTube service running in development mode with placeholder credentials');
+        return { 
+          isValid: true, 
+          warning: 'Development mode: Using placeholder credentials. YouTube API calls will be mocked.' 
+        };
+      }
+    }
+
+    // Additional validation for API key format (production mode)
     if (!this.config.apiKey.startsWith('AIza') || this.config.apiKey.length !== 39) {
       return {
         isValid: false,
@@ -133,7 +150,7 @@ export class YouTubeService {
       };
     }
 
-    // Validate channel ID format
+    // Validate channel ID format (production mode)
     if (!this.config.channelId.startsWith('UC') || this.config.channelId.length !== 24) {
       return {
         isValid: false,
@@ -334,6 +351,64 @@ export class YouTubeService {
             type: 'CONFIGURATION',
             message: configValidation.error!,
             details: { suggestion: configValidation.suggestion }
+          }
+        };
+      }
+
+      // Return mock data in development mode with placeholder credentials
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const isPlaceholderApiKey = this.config.apiKey.includes('DEVELOPMENT_PLACEHOLDER') || 
+                                  this.config.apiKey.includes('YOUR_API_KEY');
+      
+      if (isDevelopment && isPlaceholderApiKey) {
+        serviceLogger.info('Returning mock YouTube data for development mode');
+        
+        const mockData = [
+          {
+            id: 'mock-video-1',
+            title: 'Sample YouTube Video 1',
+            description: 'This is a mock video for development purposes. Configure your YouTube API key to see real content.',
+            thumbnail: 'https://via.placeholder.com/320x180/ff0000/ffffff?text=Mock+Video+1',
+            publishedAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+            url: 'https://youtube.com/watch?v=mock-video-1',
+            channelTitle: 'Development Channel',
+            viewCount: '1,234',
+            duration: '5:30'
+          },
+          {
+            id: 'mock-video-2',
+            title: 'Sample YouTube Video 2',
+            description: 'Another mock video for development. Add your real YouTube API credentials to see actual videos.',
+            thumbnail: 'https://via.placeholder.com/320x180/00ff00/ffffff?text=Mock+Video+2',
+            publishedAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+            url: 'https://youtube.com/watch?v=mock-video-2',
+            channelTitle: 'Development Channel',
+            viewCount: '5,678',
+            duration: '8:45'
+          },
+          {
+            id: 'mock-video-3',
+            title: 'Sample YouTube Video 3',
+            description: 'Third mock video for development testing. Replace placeholder credentials with real ones.',
+            thumbnail: 'https://via.placeholder.com/320x180/0000ff/ffffff?text=Mock+Video+3',
+            publishedAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+            url: 'https://youtube.com/watch?v=mock-video-3',
+            channelTitle: 'Development Channel',
+            viewCount: '9,012',
+            duration: '12:15'
+          }
+        ];
+
+        const requestDuration = Date.now() - startTime;
+        
+        return {
+          success: true,
+          data: mockData,
+          metadata: {
+            totalResults: mockData.length,
+            resultsPerPage: mockData.length,
+            requestDuration,
+            cacheHit: false
           }
         };
       }

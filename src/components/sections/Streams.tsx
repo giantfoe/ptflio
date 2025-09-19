@@ -105,7 +105,7 @@ const healthFetcher = async (url: string): Promise<HealthResponse> => {
 
 export default function Streams() {
   const logger = createComponentLogger('Streams');
-  const [activeTab, setActiveTab] = useState("youtube");
+  const [activeTab, setActiveTab] = useState("instagram");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
   const [instagramEmbed, setInstagramEmbed] = useState<{
@@ -364,27 +364,6 @@ export default function Streams() {
         
         <div className="flex gap-4 mb-8">
           <LiquidGlassButton
-            onClick={() => handleTabChange("youtube")}
-            disabled={!serviceStatus.youtube.available}
-            variant={activeTab === "youtube" ? "primary" : "ghost"}
-            size="default"
-            animation={activeTab === "youtube" ? "liquid" : "float"}
-            glow={activeTab === "youtube" ? "liquid" : "none"}
-            ripple={true}
-            shimmer={activeTab === "youtube"}
-            className="flex items-center gap-2 px-4 py-2"
-            title={!serviceStatus.youtube.available ? serviceStatus.youtube.error : 
-                   serviceStatus.youtube.responseTime ? `Response time: ${serviceStatus.youtube.responseTime}ms` : undefined}
-          >
-            <span className="flex items-center gap-2">
-              <span>YouTube</span>
-              {getStatusIcon('youtube')}
-              {serviceStatus.youtube.responseTime && serviceStatus.youtube.available && (
-                <span className="text-xs text-neutral-400">({serviceStatus.youtube.responseTime}ms)</span>
-              )}
-            </span>
-          </LiquidGlassButton>
-          <LiquidGlassButton
             onClick={() => handleTabChange("instagram")}
             disabled={!serviceStatus.instagram.available}
             variant={activeTab === "instagram" ? "primary" : "ghost"}
@@ -400,9 +379,24 @@ export default function Streams() {
             <span className="flex items-center gap-2">
               <span>Instagram</span>
               {getStatusIcon('instagram')}
-              {serviceStatus.instagram.responseTime && serviceStatus.instagram.available && (
-                <span className="text-xs text-neutral-400">({serviceStatus.instagram.responseTime}ms)</span>
-              )}
+            </span>
+          </LiquidGlassButton>
+          <LiquidGlassButton
+            onClick={() => handleTabChange("youtube")}
+            disabled={!serviceStatus.youtube.available}
+            variant={activeTab === "youtube" ? "primary" : "ghost"}
+            size="default"
+            animation={activeTab === "youtube" ? "liquid" : "float"}
+            glow={activeTab === "youtube" ? "liquid" : "none"}
+            ripple={true}
+            shimmer={activeTab === "youtube"}
+            className="flex items-center gap-2 px-4 py-2"
+            title={!serviceStatus.youtube.available ? serviceStatus.youtube.error : 
+                   serviceStatus.youtube.responseTime ? `Response time: ${serviceStatus.youtube.responseTime}ms` : undefined}
+          >
+            <span className="flex items-center gap-2">
+              <span>YouTube</span>
+              {getStatusIcon('youtube')}
             </span>
           </LiquidGlassButton>
         </div>

@@ -62,7 +62,7 @@ import { StatCard } from '@/components/ui/StatCard';
 import { TechnologyBadge } from '@/components/ui/TechnologyBadge';
 import { AIGeneratedDescription } from '@/utils/aiDescriptionGenerator';
 import { GitCommit, Calendar, Package, ArrowLeft } from 'lucide-react';
-// Removed useRSCNavigation import - using simple navigation instead
+import { useRSCNavigation } from '@/hooks/useRSCNavigation';
 import { ErrorDisplay } from '@/components/ErrorDisplay';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { fetcher } from '@/utils/fetcher';
@@ -74,10 +74,7 @@ interface ProjectPageProps {
 function ProjectPageContent({ params }: ProjectPageProps) {
   const { name: projectName } = use(params);
   const [aiDescription, setAiDescription] = useState<AIGeneratedDescription | null>(null);
-  // Simple navigation function for reliable production behavior
-  const navigate = (path: string) => {
-    window.location.href = path;
-  };
+  const { navigateToHome, state } = useRSCNavigation();
 
   // State for manual fetch
   const [data, setData] = useState<GitHubApiResponse | null>(null);
@@ -181,7 +178,7 @@ function ProjectPageContent({ params }: ProjectPageProps) {
                 Try Again
               </button>
               <button
-                onClick={() => navigate('/')}
+                onClick={() => navigateToHome(projectName)}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Back to Home
@@ -245,7 +242,7 @@ function ProjectPageContent({ params }: ProjectPageProps) {
       {/* Back Navigation Button */}
       <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigateToHome(projectName)}
           className="group flex items-center gap-2 px-4 py-2 backdrop-blur-md bg-white/10 border border-white/20 rounded-xl shadow-2xl hover:bg-white/20 hover:scale-105 transition-all duration-300 hover:shadow-3xl"
           aria-label="Back to home"
         >

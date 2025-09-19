@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { Space_Grotesk } from "next/font/google";
 import UXProviders from "@/components/providers/UXProviders";
+import { LoadingProvider } from "@/components/providers/LoadingProvider";
+import CircularTextLoader from "@/components/ui/CircularTextLoader";
 import RSCNavigationWrapper from "@/components/RSCNavigationWrapper";
 import "./globals.css";
 
@@ -21,11 +23,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body
         className={`${spaceGrotesk.variable} antialiased bg-neutral-950 text-neutral-100`}
       >
-        <RSCNavigationWrapper>
-          <UXProviders>
-            {children}
-          </UXProviders>
-        </RSCNavigationWrapper>
+        <LoadingProvider>
+          <RSCNavigationWrapper>
+            <UXProviders>
+              {children}
+            </UXProviders>
+          </RSCNavigationWrapper>
+          <CircularTextLoader />
+        </LoadingProvider>
       </body>
     </html>
   );

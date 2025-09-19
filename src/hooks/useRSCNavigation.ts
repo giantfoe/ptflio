@@ -7,10 +7,12 @@ interface NavigationState {
   isNavigating: boolean;
   error: string | null;
   retryCount: number;
+  lastClickedProject?: string;
 }
 
 interface UseRSCNavigationReturn {
-  navigate: (href: string) => Promise<void>;
+  navigate: (href: string, projectName?: string) => Promise<void>;
+  navigateToHome: (scrollToProject?: string) => Promise<void>;
   refresh: () => Promise<void>;
   state: NavigationState;
   clearError: () => void;
@@ -40,8 +42,13 @@ export function useRSCNavigation(): UseRSCNavigationReturn {
     setState(prev => ({ ...prev, error: null, retryCount: 0 }));
   }, []);
 
-  const navigate = useCallback(async (href: string) => {
-    setState(prev => ({ ...prev, isNavigating: true, error: null }));
+  const navigate = useCallback(async (href: string, projectName?: string) => {
+    setState(prev => ({ 
+      ...prev, 
+      isNavigating: true, 
+      error: null,
+      lastClickedProject: projectName || prev.lastClickedProject
+    }));
 
     try {
       // Strategy 1: Try Next.js router navigation
@@ -95,6 +102,71 @@ export function useRSCNavigation(): UseRSCNavigationReturn {
     }
   }, [router, state.retryCount]);
 
+  const navigateToHome = useCallback(async (scrollToProject?: string) => {
+    setState(prev => ({ ...prev, isNavigating: true, error: null }));
+
+    try {
+      // Navigate to home page
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          reject(new Error('Navigation timeout'));
+        }, 5000);
+
+        try {
+          router.push('/');
+          // Give time for navigation to complete
+          setTimeout(() => {
+            clearTimeout(timeout);
+            resolve();
+          }, 1000);
+        } catch (error) {
+          clearTimeout(timeout);
+          reject(error);
+        }
+      });
+
+      // After navigation, scroll to the specific project if provided
+      if (scrollToProject) {
+        // Wait for page to load with optimized timing
+        setTimeout(() => {
+          const projectElement = document.getElementById(`project-${scrollToProject}`);
+          if (projectElement) {
+            projectElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+        }, 400);
+      }
+
+    } catch (error) {
+      console.warn('Home navigation failed, trying fallback:', error);
+      
+      setState(prev => ({ 
+        ...prev, 
+        retryCount: prev.retryCount + 1,
+        error: error instanceof Error ? error.message : 'Navigation failed'
+      }));
+
+      // Fallback to window.location
+      if (state.retryCount < 2) {
+        try {
+          const homeUrl = scrollToProject ? `/#project-${scrollToProject}` : '/';
+          window.location.href = homeUrl;
+        } catch (fallbackError) {
+          console.error('Fallback home navigation failed:', fallbackError);
+          setState(prev => ({ 
+            ...prev, 
+            error: 'All navigation methods failed'
+          }));
+        }
+      }
+    } finally {
+      setState(prev => ({ ...prev, isNavigating: false }));
+    }
+  }, [router, state.retryCount]);
+
   const refresh = useCallback(async () => {
     setState(prev => ({ ...prev, isRefreshing: true }));
     
@@ -118,6 +190,7 @@ export function useRSCNavigation(): UseRSCNavigationReturn {
 
   return {
     navigate,
+    navigateToHome,
     refresh,
     state,
     clearError

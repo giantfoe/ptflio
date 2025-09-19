@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { ExternalLink, RefreshCw, AlertTriangle, Monitor, Smartphone, Tablet } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface LivePreviewProps {
   url: string;
@@ -81,29 +82,24 @@ export const LivePreview: React.FC<LivePreviewProps> = ({
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Viewport controls */}
-            <div className="flex items-center gap-1 backdrop-blur-md bg-white/10 rounded-md border border-white/20">
-              {Object.entries(viewportSizes).map(([size, config]) => {
-                const Icon = config.icon;
-                return (
-                  <button
-                    key={size}
-                    onClick={() => setViewport(size as ViewportSize)}
-                    className={`
-                      p-2 rounded transition-all duration-200 hover:scale-105
-                      ${
-                        viewport === size
-                          ? 'bg-white/20 text-white shadow-lg'
-                          : 'text-gray-300 hover:text-white hover:bg-white/10'
-                      }
-                    `}
-                    title={`${size} view`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </button>
-                );
-              })}
-            </div>
+            {/* Viewport controls as tabs */}
+            <Tabs value={viewport} onValueChange={(value) => setViewport(value as ViewportSize)}>
+              <TabsList className="backdrop-blur-md bg-white/10 border border-white/20">
+                {Object.entries(viewportSizes).map(([size, config]) => {
+                  const Icon = config.icon;
+                  return (
+                    <TabsTrigger
+                      key={size}
+                      value={size}
+                      className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-gray-300 hover:text-white transition-all duration-200"
+                      title={`${size} view`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
             
             {/* Action buttons */}
             <button
