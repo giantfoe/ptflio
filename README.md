@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+This is a [Next.js](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
@@ -34,3 +34,19 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Environment Variables
+
+This project requires the following environment variables to be set for fetching GitHub data:
+
+- `GITHUB_USERNAME`: Your GitHub username (required for identifying repositories)
+- `GITHUB_TOKEN`: A GitHub personal access token with repo scope (required to avoid rate limits and access private data if needed)
+
+Create a `.env.local` file in the root directory and add:
+
+```
+GITHUB_USERNAME=your_username
+GITHUB_TOKEN=your_token
+```
+
+Note: Never commit these to version control. Add `.env.local` to `.gitignore` if not already present.

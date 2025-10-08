@@ -18,18 +18,19 @@ interface TechnologyStackProps {
   variant?: 'compact' | 'detailed';
 }
 
-const getCategoryIcon = (categoryName: string) => {
-  switch (categoryName.toLowerCase()) {
-    case 'frontend':
-      return <Layers className="w-4 h-4" />;
-    case 'backend':
-      return <Code className="w-4 h-4" />;
-    case 'database':
-      return <Database className="w-4 h-4" />;
-    default:
-      return <Zap className="w-4 h-4" />;
-  }
-};
+// Remove unused getCategoryIcon function
+// const getCategoryIcon = (categoryName: string) => {
+//   switch (categoryName.toLowerCase()) {
+//     case 'frontend':
+//       return <Layers className="w-4 h-4" />;
+//     case 'backend':
+//       return <Code className="w-4 h-4" />;
+//     case 'database':
+//       return <Database className="w-4 h-4" />;
+//     default:
+//       return <Zap className="w-4 h-4" />;
+//   }
+// };
 
 export const TechnologyStack: React.FC<TechnologyStackProps> = ({
   languages,

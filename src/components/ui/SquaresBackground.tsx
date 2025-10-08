@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SVGProps } from "react";
 import { cn } from "@/lib/utils";
 
-interface SquaresBackgroundProps {
+interface SquaresBackgroundProps extends SVGProps<SVGSVGElement> {
   width?: number;
   height?: number;
   x?: number;
   y?: number;
   squares?: Array<[number, number]>;
   strokeDasharray?: string;
-  className?: string;
   animationSpeed?: number;
   maxLitSquares?: number;
-  [key: string]: any;
 }
 
 export function SquaresBackground({

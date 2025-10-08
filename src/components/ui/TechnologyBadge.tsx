@@ -87,7 +87,8 @@ export const TechnologyBadge: React.FC<TechnologyBadgeProps> = ({
   // Ensure percentage is a valid number
   const validPercentage = percentage !== undefined && !isNaN(percentage) && isFinite(percentage) ? percentage : 0;
   
-  const colorClass = getTechnologyColor(name);
+  // Remove unused colorClass
+  // const colorClass = getTechnologyColor(name);
   const sizeClass = sizeClasses[size];
   const progressSizeClass = progressSizeClasses[size];
   const techIcon = getTechnologyIcon(name);

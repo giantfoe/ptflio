@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const GITHUB_USERNAME = process.env.GITHUB_USERNAME;
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
-if (!GITHUB_USERNAME) {
-  throw new Error('GITHUB_USERNAME environment variable is required');
-}
+import { validateMultipleEnvVars, createSimpleConfigurationError } from '@/utils/env-validation';
 
 interface GitHubCommit {
   sha: string;
@@ -67,6 +61,26 @@ export async function GET(
   const startTime = Date.now();
   const { name } = await params;
   console.log(`[GitHub API] Fetching comprehensive repository data for: ${name}`);
+  
+  // Validate environment variables
+  const envVars = {
+    'GITHUB_USERNAME': process.env.GITHUB_USERNAME
+  };
+  
+  const envValidation = validateMultipleEnvVars(envVars);
+  
+  if (!envValidation.isAllValid) {
+    console.error('[GitHub API] Configuration invalid');
+    const errorResponse = createSimpleConfigurationError(
+      'GitHub API is not properly configured',
+      Object.keys(envVars).filter(key => !envValidation.results[key].isValid),
+      envValidation.suggestions
+    );
+    return NextResponse.json(errorResponse, { status: 503 });
+  }
+  
+  const GITHUB_USERNAME = process.env.GITHUB_USERNAME!;
+  const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
   
   try {
     const headers: Record<string, string> = {
